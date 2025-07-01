@@ -1,0 +1,38 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+h1 {
+    text-align: center;
+}
+
+form {
+    width: 300px;
+    display: flex;
+    margin: auto;
+    flex-direction: column;
+}
+
+.form-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 15px;
+}
+
+label {
+    width: 100%;
+    text-align: center;
+}
+
+h2 {
+    margin-top: 15px;
+    font-size: medium;
+    font-weight: 300;
+}
+
+button {
+    margin-top: 15px;
+}
