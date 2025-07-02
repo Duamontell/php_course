@@ -9,7 +9,7 @@
 
 <body>
     <h1>Регистрация пользователя:</h1>
-    <!-- Переименовать user.php в  -->
+    <!-- Переименовать user.php в create_user.php -->
     <form action="user.php" method="POST">
         <div class="form-row">
             <label for="first_name-input">Имя:</label>
