@@ -9,7 +9,7 @@ h1 {
 }
 
 form {
-    width: 300px;
+    width: 270px;
     display: flex;
     margin: auto;
     flex-direction: column;
@@ -23,7 +23,6 @@ form {
 }
 
 label {
-    width: 100%;
     text-align: center;
 }
 

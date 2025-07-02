@@ -9,7 +9,8 @@
 
 <body>
     <h1>Регистрация пользователя:</h1>
-    <form method="POST">
+    <!-- Переименовать user.php в  -->
+    <form action="user.php" method="POST">
         <div class="form-row">
             <label for="first_name-input">Имя:</label>
             <input type="text" id="first_name-input" name="first_name">
@@ -28,7 +29,23 @@
             <label for="woman_gender-input">Женщина</label>
             <input type="radio" id="woman_gender-input" name="gender" value="woman">
         </div>
-        <button type="submit">Создать задачу</button>
+        <div class="form-row">
+            <label for="birth_date-input">Дата рождения</label>
+            <input type="date" id="birth_date-input" name="birth_date">
+        </div>
+        <div class="form-row">
+            <label for="email-input">Email</label>
+            <input type="email" id="email-input" name="email">
+        </div>
+        <div class="form-row">
+            <label for="phone-input">Телефон</label>
+            <input type="tel" id="phone-input" name="phone">
+        </div>
+        <div class="form-row">
+            <label for="avatar-input">Аватар</label>
+            <input type="file" id="avatar-input" name="avatar">
+        </div>
+        <button type="submit">Зарегистрироваться</button>
     </form>
 </body>
 
