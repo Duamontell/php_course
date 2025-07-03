@@ -74,7 +74,6 @@ class UserTable
             ":user_id" => $userId
         ]);
 
-        // $result = $stmt->fetch(PDO::FETCH_ASSOC);
         $result = $stmt->fetch();
         if ($result === false) {
             return null;

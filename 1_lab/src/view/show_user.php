@@ -30,7 +30,7 @@ if ($userId = $_GET['user_id']) {
     <p>Дата рождения: <?= htmlspecialchars($userInfo["birth_date"]) ?></p>
     <p>Email: <?= htmlspecialchars($userInfo["email"]) ?></p>
     <p>Телефон: <?= htmlspecialchars($userInfo["phone"]) ?></p>
-    <p>Аватар: <?= htmlspecialchars($userInfo["avatar_path"]) ?></p>
+    <img src="<?= htmlspecialchars($userInfo["avatar_path"]) ?>" alt="Аватар">
 </body>
 
 </html>

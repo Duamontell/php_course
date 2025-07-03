@@ -12,11 +12,22 @@ try {
     ) {
         throw new RuntimeException("Обязательные поля должны быть заполнены!");
     }
+
     $params = $_POST;
+
+    $uploadDir = "../../public/";
+    $destination = $uploadDir . basename($_FILES["avatar"]["name"]);
+    $params["avatar_path"] = $destination;
+    if (!move_uploaded_file($_FILES["avatar"]["tmp_name"], $destination)) {
+        throw new RuntimeException("Ошибка сохранении аватара!");
+    }
+
     $userTable = new UserTable();
     $con = $userTable->connectDatabase();
+
     try {
         $id = $userTable->saveUserToDatabase($con, $params);
+
         $redirectUrl = "../view/show_user.php?user_id=$id";
         header("Location: " . $redirectUrl, true, 303);
     } catch (PDOException) {
