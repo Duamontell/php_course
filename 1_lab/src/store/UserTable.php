@@ -1,5 +1,7 @@
 <?php
 
+require_once __DIR__ . "/User.php";
+
 class UserTable
 {
     public function connectDatabase(): ?PDO
@@ -34,7 +36,7 @@ class UserTable
         return json_decode($jsonConfig, true);
     }
 
-    function saveUserToDatabase(PDO $pdo, array $userParams): int
+    function saveUserToDatabase(PDO $pdo, User $user): int
     {
         $sql = <<<SQL
             INSERT INTO `user`
@@ -43,16 +45,17 @@ class UserTable
         SQL;
 
         $stmt = $pdo->prepare($sql);
+        $user->getUserId();
 
         $stmt->execute([
-            ":first_name" => $userParams["first_name"],
-            ":last_name" => $userParams["last_name"],
-            ":middle_name" => $userParams["middle_name"],
-            ":gender" => $userParams["gender"],
-            ":birth_date" => $userParams["birth_date"],
-            ":email" => $userParams["email"],
-            ":phone" => $userParams["phone"],
-            ":avatar_path" => $userParams["avatar_path"],
+            ":first_name" => $user->getFirstName(),
+            ":last_name" => $user->getLastName(),
+            ":middle_name" => $user->getMiddleName(),
+            ":gender" => $user->getGender(),
+            ":birth_date" => $user->getBirthDate(),
+            ":email" => $user->getEmail(),
+            ":phone" => $user->getPhone(),
+            ":avatar_path" => $user->getAvatarPath(),
         ]);
         (int)$lastId = $pdo->lastInsertId();
         if ($lastId == false) {
@@ -61,7 +64,7 @@ class UserTable
         return $lastId;
     }
 
-    function findUserInDatabase(PDO $pdo, int $userId): ?array
+    function findUserInDatabase(PDO $pdo, int $userId): ?User
     {
         $sql = <<<SQL
             SELECT `first_name`, `last_name`, `middle_name`, `gender`, `birth_date`, `email`, `phone`, `avatar_path`
@@ -74,11 +77,13 @@ class UserTable
             ":user_id" => $userId
         ]);
 
-        $result = $stmt->fetch();
-        if ($result === false) {
+        $resultQuery = $stmt->fetch();
+        if ($resultQuery === false) {
             return null;
         }
 
-        return $result;
+        $user = User::createUserFromParams($userId, $resultQuery);
+
+        return $user;
     }
 }
