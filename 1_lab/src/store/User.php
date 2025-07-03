@@ -14,6 +14,21 @@ class User
         private string $avatarPath
     ) {}
 
+    public static function createUserfromParams(?int $userId, array $params): User
+    {
+        return new User(
+            $userId,
+            $params["first_name"],
+            $params["last_name"],
+            $params["middle_name"],
+            $params["gender"],
+            $params["birth_date"],
+            $params["email"],
+            $params["phone"],
+            $params["avatar_path"]
+        );
+    }
+
     public function getUserId(): ?int
     {
         return $this->userId;

@@ -5,7 +5,7 @@ require_once __DIR__ . "/../store/UserTable.php";
 if ($userId = $_GET['user_id']) {
     $userTable = new UserTable();
     $con = $userTable->connectDatabase();
-    $userInfo = $userTable->findUserInDatabase($con, $userId);
+    $user = $userTable->findUserInDatabase($con, $userId);
 } else {
     $message = "404\nЗапрашиваемая страница не найдена";
     $redirectUrl = "../view/error.php?msg=" . $message;
@@ -23,14 +23,14 @@ if ($userId = $_GET['user_id']) {
 </head>
 
 <body>
-    <p>Имя: <?= htmlspecialchars($userInfo["first_name"]) ?></p>
-    <p>Фамилия: <?= htmlspecialchars($userInfo["last_name"]) ?></p>
-    <p>Отчество: <?= htmlspecialchars($userInfo["middle_name"]) ?></p>
-    <p>Пол: <?= htmlspecialchars($userInfo["gender"]) ?></p>
-    <p>Дата рождения: <?= htmlspecialchars($userInfo["birth_date"]) ?></p>
-    <p>Email: <?= htmlspecialchars($userInfo["email"]) ?></p>
-    <p>Телефон: <?= htmlspecialchars($userInfo["phone"]) ?></p>
-    <img src="<?= htmlspecialchars($userInfo["avatar_path"]) ?>" alt="Аватар">
+    <p>Имя: <?= htmlspecialchars($user->getFirstName()) ?></p>
+    <p>Фамилия: <?= htmlspecialchars($user->getLastName()) ?></p>
+    <p>Отчество: <?= htmlspecialchars($user->getMiddleName()) ?></p>
+    <p>Пол: <?= htmlspecialchars($user->getGender()) ?></p>
+    <p>Дата рождения: <?= htmlspecialchars($user->getBirthDate()) ?></p>
+    <p>Email: <?= htmlspecialchars($user->getEmail()) ?></p>
+    <p>Телефон: <?= htmlspecialchars($user->getPhone()) ?></p>
+    <img src="<?= htmlspecialchars($user->getAvatarPath()) ?>" alt="Аватар">
 </body>
 
 </html>

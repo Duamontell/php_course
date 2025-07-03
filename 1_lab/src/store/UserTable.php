@@ -64,7 +64,7 @@ class UserTable
         return $lastId;
     }
 
-    function findUserInDatabase(PDO $pdo, int $userId): ?array
+    function findUserInDatabase(PDO $pdo, int $userId): ?User
     {
         $sql = <<<SQL
             SELECT `first_name`, `last_name`, `middle_name`, `gender`, `birth_date`, `email`, `phone`, `avatar_path`
@@ -77,11 +77,13 @@ class UserTable
             ":user_id" => $userId
         ]);
 
-        $result = $stmt->fetch();
-        if ($result === false) {
+        $resultQuery = $stmt->fetch();
+        if ($resultQuery === false) {
             return null;
         }
 
-        return $result;
+        $user = User::createUserFromParams($userId, $resultQuery);
+
+        return $user;
     }
 }
