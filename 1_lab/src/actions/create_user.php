@@ -16,21 +16,14 @@ try {
     $userTable = new UserTable();
     $con = $userTable->connectDatabase();
     try {
-        $id = saveUserToDatabase($con, $params);
-        $redirectUrl = "../view/user.php?user_id=$id";
+        $id = $userTable->saveUserToDatabase($con, $params);
+        $redirectUrl = "../view/show_user.php?user_id=$id";
         header("Location: " . $redirectUrl, true, 303);
     } catch (PDOException) {
         throw new RuntimeException("Пользователь с таким email или номером телефона уже сущестует");
     }
 } catch (RuntimeException $e) {
     $message = $e->getMessage();
-    $redirectUrl = "../view/error.php?msg=" . urlencode($message);
+    $redirectUrl = "../view/error.php?msg=" . $message;
     header("Location: " . $redirectUrl, true, 303);
 }
-
-
-
-// try {
-// } catch (PDOException $e) {
-//     $id = saveUserToDatabase($con, $params);
-// }
