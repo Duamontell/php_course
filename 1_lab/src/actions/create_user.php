@@ -2,6 +2,21 @@
 
 require_once __DIR__ . '/../store/UserTable.php';
 
+function createUserFromParams(array $params): User
+{
+    return new User(
+        null,
+        $params["first_name"],
+        $params["last_name"],
+        $params["middle_name"],
+        $params["gender"],
+        $params["birth_date"],
+        $params["email"],
+        $params["phone"],
+        $params["avatar_path"]
+    );
+}
+
 try {
     if (
         empty($_POST["first_name"])
@@ -24,9 +39,10 @@ try {
 
     $userTable = new UserTable();
     $con = $userTable->connectDatabase();
+    $user = createUserFromParams($params);
 
     try {
-        $id = $userTable->saveUserToDatabase($con, $params);
+        $id = $userTable->saveUserToDatabase($con, $user);
 
         $redirectUrl = "../view/show_user.php?user_id=$id";
         header("Location: " . $redirectUrl, true, 303);

@@ -9,7 +9,6 @@
 
 <body>
     <h1>Регистрация пользователя:</h1>
-    <!-- Переименовать user.php в create_user.php -->
     <form action="../actions/create_user.php" enctype="multipart/form-data" method="POST">
         <div class="form-row">
             <label for="first_name-input">Имя:</label>
