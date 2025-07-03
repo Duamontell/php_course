@@ -2,26 +2,35 @@
 
 require_once __DIR__ . '/../store/UserTable.php';
 
-// Переделать на is_null
-if (
-    !isset($_POST["first_name"])
-    || !isset($_POST["last_name"])
-    || !isset($_POST["gender"])
-    || !isset($_POST["birth_date"])
-    || !isset($_POST["email"])
-) {
-    // Переделать на Exception
-    $redirectUrl = "../view/error.php";
-    header('Location: ' . $redirectUrl, true, 303);
-}
-
-$params = $_POST;
-$userTable = new UserTable();
-$con = $userTable->connectDatabase();
-
 try {
-    $id = saveUserToDatabase($con, $params);
-} catch (PDOException $e) {
-    
-    //throw $th;
+    if (
+        empty($_POST["first_name"])
+        || empty($_POST["last_name"])
+        || empty($_POST["gender"])
+        || empty($_POST["birth_date"])
+        || empty($_POST["email"])
+    ) {
+        throw new RuntimeException("Обязательные поля должны быть заполнены!");
+    }
+    $params = $_POST;
+    $userTable = new UserTable();
+    $con = $userTable->connectDatabase();
+    try {
+        $id = saveUserToDatabase($con, $params);
+        $redirectUrl = "../view/user.php?user_id=$id";
+        header("Location: " . $redirectUrl, true, 303);
+    } catch (PDOException) {
+        throw new RuntimeException("Пользователь с таким email или номером телефона уже сущестует");
+    }
+} catch (RuntimeException $e) {
+    $message = $e->getMessage();
+    $redirectUrl = "../view/error.php?msg=" . urlencode($message);
+    header("Location: " . $redirectUrl, true, 303);
 }
+
+
+
+// try {
+// } catch (PDOException $e) {
+//     $id = saveUserToDatabase($con, $params);
+// }

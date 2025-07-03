@@ -1,3 +1,9 @@
+<?php
+
+$message = $_GET['msg'] ?? 'Неизвестная ошибка';
+
+?>
+
 <!DOCTYPE html>
 <html>
 
@@ -7,7 +13,11 @@
 
 <body>
     <div>
-        Ошибка!
+        <h1>Ошибка!</h1>
+        <p>
+            <?php echo ($message); ?>
+        </p>
+        <a href="register_user.php">Вернуться назад</a>
     </div>
 </body>
 

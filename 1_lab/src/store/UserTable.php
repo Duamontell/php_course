@@ -19,20 +19,28 @@ function saveUserToDatabase(PDO $pdo, array $userParams): int
     $stmt->bindValue(":phone", $userParams["phone"]);
     $stmt->bindValue(":avatar_path", $userParams["avatar_path"]);
 
-    try {
-        $stmt->execute();
-        (int)$lastId = $pdo->lastInsertId();
-        if ($lastId == false) {
-            throw new RuntimeException("Ошибка в сохранении пользователя");
-        }
-        return $lastId;
-    } catch (PDOException $e) {
-        if ($stmt->errorCode() == 23000) {
-            $redirectUrl = "../view/error.php";
-            header('Location: ' . $redirectUrl, true, 303);
-            throw new RuntimeException("Пользователь с таким email или номером телефона уже сущестует");
-        }
+
+    $stmt->execute();
+    (int)$lastId = $pdo->lastInsertId();
+    if ($lastId == false) {
+        throw new RuntimeException("Ошибка в сохранении пользователя");
     }
+    return $lastId;
+
+    // try {
+    //     $stmt->execute();
+    //     (int)$lastId = $pdo->lastInsertId();
+    //     if ($lastId == false) {
+    //         throw new RuntimeException("Ошибка в сохранении пользователя");
+    //     }
+    //     return $lastId;
+    // } catch (PDOException $e) {
+    //     if ($stmt->errorCode() == 23000) {
+    //         $redirectUrl = "../view/error.php";
+    //         header('Location: ' . $redirectUrl, true, 303);
+    //         throw new RuntimeException("Пользователь с таким email или номером телефона уже сущестует");
+    //     }
+    // }
 
     return 0;
 }
