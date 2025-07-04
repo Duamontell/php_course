@@ -11,6 +11,8 @@ class UserController
         $this->userTable = new UserTable($pdo);
     }
 
+    public function index() {}
+
     public function getUserTable(): UserTable
     {
         return $this->userTable;
