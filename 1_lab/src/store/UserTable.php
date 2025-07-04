@@ -4,37 +4,9 @@ require_once __DIR__ . "/User.php";
 
 class UserTable
 {
-    public function connectDatabase(): ?PDO
-    {
-        try {
-            $dbConfig = self::getConnectionParams();
-            $dsn = $dbConfig['dsn'];
-            $userName = $dbConfig['userName'];
-            $password = $dbConfig['password'];
-
-            return new PDO($dsn, $userName, $password);
-        } catch (PDOException $e) {
-            echo ("Connection failed: " . $e->getMessage());
-            return null;
-        }
-    }
-
-
-    /**
-     *   @return array{dsn:string,username:string,password:string}
-     */
-    private function getConnectionParams(): array
-    {
-        // Проверка на файл
-        $configPath = __DIR__ . "/../../config/config.json";
-        if (!file_exists($configPath)) {
-            throw new RuntimeException("Конфиг файл не найден!");
-        }
-
-        $jsonConfig = file_get_contents($configPath);
-
-        return json_decode($jsonConfig, true);
-    }
+    public function __construct(
+        private PDO $pdo
+    ) {}
 
     function saveUserToDatabase(PDO $pdo, User $user): int
     {
@@ -85,5 +57,10 @@ class UserTable
         $user = User::createUserFromParams($userId, $resultQuery);
 
         return $user;
+    }
+
+    public function getPDO()
+    {
+        return $this->pdo;
     }
 }

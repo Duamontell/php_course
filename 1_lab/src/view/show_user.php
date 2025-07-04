@@ -1,10 +1,11 @@
 <?php
 
 require_once __DIR__ . "/../store/UserTable.php";
+require_once __DIR__ . "/../../index.php";
 
 if ($userId = $_GET['user_id']) {
-    $userTable = new UserTable();
-    $con = $userTable->connectDatabase();
+    $userTable = $userController->getUserTable();
+    $con = $userTable->getPDO();
     $user = $userTable->findUserInDatabase($con, $userId);
 } else {
     $message = "404\nЗапрашиваемая страница не найдена";
