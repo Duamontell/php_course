@@ -1,21 +1,7 @@
 <?php
 
-require_once __DIR__ . '/../store/UserTable.php';
-
-// function createUserFromParams(array $params): User
-// {
-//     return new User(
-//         null,
-//         $params["first_name"],
-//         $params["last_name"],
-//         $params["middle_name"],
-//         $params["gender"],
-//         $params["birth_date"],
-//         $params["email"],
-//         $params["phone"],
-//         $params["avatar_path"]
-//     );
-// }
+require_once __DIR__ . "/../store/UserTable.php";
+require_once __DIR__ . "/../../index.php";
 
 try {
     if (
@@ -37,8 +23,8 @@ try {
         throw new RuntimeException("Ошибка сохранении аватара!");
     }
 
-    $userTable = new UserTable();
-    $con = $userTable->connectDatabase();
+    $userTable = $userController->getUserTable();
+    $con = $userTable->getPDO();
     $user = User::createUserFromParams($null, $params);
 
     try {
