@@ -1,10 +1,8 @@
 <?php
 
-require_once __DIR__ . "/../store/UserTable.php";
-require_once __DIR__ . "/../../index.php";
 
 if ($userId = $_GET['user_id']) {
-    $userTable = $userController->getUserTable();
+    $userTable = $this->getUserTable();
     $con = $userTable->getPDO();
     $user = $userTable->findUserInDatabase($con, $userId);
 } else {

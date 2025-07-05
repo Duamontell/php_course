@@ -5,7 +5,7 @@ class ConfigLoader
     /**
      *   @return array{dsn:string,username:string,password:string}
      */
-    public static function configLoad(): ?array
+    public static function configLoad(): array
     {
         $configPath = __DIR__ . "/../../config/config.json";
         if (!file_exists($configPath)) {
