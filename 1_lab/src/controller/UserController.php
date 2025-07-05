@@ -1,12 +1,18 @@
 <?php
 
-require_once __DIR__ . "/../store/UserTable.php";
+declare(strict_types=1);
+
+namespace App\controller;
+
+use App\store\UserTable;
+use App\store\User;
+
 
 class UserController
 {
     private UserTable $userTable;
 
-    public function __construct(PDO $pdo)
+    public function __construct(\PDO $pdo)
     {
         $this->userTable = new UserTable($pdo);
     }
@@ -49,7 +55,7 @@ class UserController
     {
         try {
             if (!$this->checkRequiredFields($_POST)) {
-                throw new RuntimeException("Обязательные поля должны быть заполнены!");
+                throw new \RuntimeException("Обязательные поля должны быть заполнены!");
             }
             if (empty($_POST["middle_name"])) {
                 $_POST["middle_name"] = null;
@@ -64,7 +70,7 @@ class UserController
                 $uploadDir = "uploads/";
                 $destination = $uploadDir . basename($_FILES["avatar"]["name"]);
                 if (!move_uploaded_file($_FILES["avatar"]["tmp_name"], $destination)) {
-                    throw new RuntimeException("Ошибка сохранении аватара!");
+                    throw new \RuntimeException("Ошибка сохранении аватара!");
                 }
                 $params["avatar_path"] = $destination;
             } else {
@@ -80,10 +86,10 @@ class UserController
 
                 $redirectUrl = "?action=profile&user_id=$id";
                 header("Location: " . $redirectUrl, true, 303);
-            } catch (PDOException) {
-                throw new RuntimeException("Пользователь с таким email или номером телефона уже сущестует");
+            } catch (\PDOException) {
+                throw new \RuntimeException("Пользователь с таким email или номером телефона уже сущестует");
             }
-        } catch (RuntimeException $e) {
+        } catch (\RuntimeException $e) {
             $message = $e->getMessage();
             $redirectUrl = "?action=error&msg=" . $message;
             header("Location: " . $redirectUrl, true, 303);

@@ -1,6 +1,5 @@
 <?php
 
-
 if ($userId = $_GET['user_id']) {
     $userTable = $this->getUserTable();
     $con = $userTable->getPDO();

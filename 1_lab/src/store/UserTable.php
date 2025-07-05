@@ -1,14 +1,16 @@
 <?php
 
-require_once __DIR__ . "/User.php";
+namespace App\store;
+
+use App\store\User;
 
 class UserTable
 {
     public function __construct(
-        private PDO $pdo
+        private \PDO $pdo
     ) {}
 
-    function saveUserToDatabase(PDO $pdo, User $user): int
+    function saveUserToDatabase(\PDO $pdo, User $user): int
     {
         $sql = <<<SQL
             INSERT INTO `user`
@@ -31,12 +33,12 @@ class UserTable
         ]);
         (int)$lastId = $pdo->lastInsertId();
         if ($lastId == false) {
-            throw new RuntimeException("Ошибка в сохранении пользователя");
+            throw new \RuntimeException("Ошибка в сохранении пользователя");
         }
         return $lastId;
     }
 
-    function findUserInDatabase(PDO $pdo, int $userId): ?User
+    function findUserInDatabase(\PDO $pdo, int $userId): ?User
     {
         $sql = <<<SQL
             SELECT `first_name`, `last_name`, `middle_name`, `gender`, `birth_date`, `email`, `phone`, `avatar_path`

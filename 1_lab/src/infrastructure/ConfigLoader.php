@@ -1,5 +1,9 @@
 <?php
 
+declare(strict_types=1);
+
+namespace App\infrastructure;
+
 class ConfigLoader
 {
     /**
@@ -9,7 +13,7 @@ class ConfigLoader
     {
         $configPath = __DIR__ . "/../../config/config.json";
         if (!file_exists($configPath)) {
-            throw new RuntimeException("Конфиг файл не найден!");
+            throw new \RuntimeException("Конфиг файл не найден!");
         }
 
         $jsonConfig = file_get_contents($configPath);
