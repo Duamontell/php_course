@@ -1,19 +1,19 @@
 <?php
 
-require_once __DIR__. "/ConfigLoader.php";
+declare(strict_types=1);
+
+namespace App\infrastructure;
+
+use App\infrastructure\ConfigLoader;
 
 class DatabaseConnection
 {
-    public static function connectToDatabase(): PDO
+    public static function connectToDatabase(): \PDO
     {
-        // try {
         $dbConfig = ConfigLoader::configLoad();
         $dsn = $dbConfig['dsn'];
         $userName = $dbConfig['userName'];
         $password = $dbConfig['password'];
-        return new PDO($dsn, $userName, $password);
-        // } catch (PDOException $e) {
-        //     return null;
-        // }
+        return new \PDO($dsn, $userName, $password);
     }
 }
