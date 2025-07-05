@@ -6,12 +6,12 @@ class User
         private ?int $userId,
         private string $firstName,
         private string $lastName,
-        private string $middleName,
+        private ?string $middleName,
         private string $gender,
         private string $birthDate,
         private string $email,
-        private string $phone,
-        private string $avatarPath
+        private ?string $phone,
+        private ?string $avatarPath
     ) {}
 
     public static function createUserfromParams(?int $userId, array $params): User
@@ -44,7 +44,7 @@ class User
         return $this->lastName;
     }
 
-    public function getMiddleName(): string
+    public function getMiddleName(): ?string
     {
         return $this->middleName;
     }
@@ -64,12 +64,12 @@ class User
         return $this->email;
     }
 
-    public function getPhone(): string
+    public function getPhone(): ?string
     {
         return $this->phone;
     }
 
-    public function getAvatarPath(): string
+    public function getAvatarPath(): ?string
     {
         return $this->avatarPath;
     }

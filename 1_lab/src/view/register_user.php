@@ -9,7 +9,7 @@
 
 <body>
     <h1>Регистрация пользователя:</h1>
-    <form action="../actions/create_user.php" enctype="multipart/form-data" method="POST">
+    <form action="index.php?action=register" enctype="multipart/form-data" method="POST">
         <div class="form-row">
             <label for="first_name-input">Имя:</label>
             <input type="text" id="first_name-input" name="first_name">

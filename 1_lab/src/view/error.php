@@ -1,6 +1,6 @@
 <?php
 
-$message = $_GET['msg'] ?? 'Неизвестная ошибка';
+$message = $_GET['msg'] ?? 'Страница не найдена';
 
 ?>
 
@@ -17,7 +17,7 @@ $message = $_GET['msg'] ?? 'Неизвестная ошибка';
         <p>
             <?php echo ($message); ?>
         </p>
-        <a href="register_user.php">Вернуться назад</a>
+        <a href="index.php?action=registration">Вернуться назад</a>
     </div>
 </body>
 
