@@ -1,14 +1,15 @@
 <?php
 
-if ($userId = $_GET['user_id']) {
-    $userTable = $this->getUserTable();
-    $con = $userTable->getPDO();
-    $user = $userTable->findUserInDatabase($con, $userId);
-} else {
-    $message = "404\nЗапрашиваемая страница не найдена";
-    $redirectUrl = "?error.php?msg=" . $message;
-    header("Location: " . $redirectUrl, true, 303);
+if (empty($_GET["user_id"])) {
+    $message = "404: Запрашиваемая страница не найдена";
+    header("Location: " . "index.php?action=error&msg={$message}", true, 303);
+    die();
 }
+
+$userId = (int) $_GET["user_id"];
+$userTable = $this->getUserTable();
+$con = $userTable->getPDO();
+$user = $userTable->findUserInDatabase($con, $userId);
 
 ?>
 

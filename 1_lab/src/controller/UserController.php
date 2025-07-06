@@ -94,6 +94,7 @@ class UserController
 
                 $redirectUrl = "?action=profile&user_id=$id";
                 header("Location: " . $redirectUrl, true, 303);
+                die();
             } catch (\PDOException) {
                 throw new \RuntimeException("Пользователь с таким email или номером телефона уже сущестует");
             }
@@ -101,6 +102,7 @@ class UserController
             $message = $e->getMessage();
             $redirectUrl = "?action=error&msg=" . $message;
             header("Location: " . $redirectUrl, true, 303);
+            die();
         }
     }
 
