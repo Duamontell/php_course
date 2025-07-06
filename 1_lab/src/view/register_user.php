@@ -42,7 +42,7 @@
         </div>
         <div class="form-row">
             <label for="avatar-input">Аватар</label>
-            <input type="file" id="avatar-input" name="avatar">
+            <input type="file" id="avatar-input" accept=".png, .jpeg, .gif" name="avatar">
         </div>
         <button type="submit">Зарегистрироваться</button>
     </form>

@@ -61,6 +61,12 @@ class UserTable
         return $user;
     }
 
+    public function updateAvatarPath(\PDO $pdo, int $id, string $path)
+    {
+        $stmt = $pdo->prepare("UPDATE user SET avatar_path = :path WHERE user_id = :id");
+        $stmt->execute([':path' => $path, ':id' => $id]);
+    }
+
     public function getPDO()
     {
         return $this->pdo;

@@ -6,7 +6,7 @@ namespace App\controller;
 
 use App\store\UserTable;
 use App\store\User;
-
+use RuntimeException;
 
 class UserController
 {
@@ -65,16 +65,16 @@ class UserController
             }
 
             $params = $_POST;
+            $params["avatar_path"] = null;
 
+            $avatarPath = null;
+            $avatarExtension = null;
             if (is_uploaded_file($_FILES["avatar"]["tmp_name"])) {
-                $uploadDir = "uploads/";
-                $destination = $uploadDir . basename($_FILES["avatar"]["name"]);
-                if (!move_uploaded_file($_FILES["avatar"]["tmp_name"], $destination)) {
-                    throw new \RuntimeException("Ошибка сохранении аватара!");
+                $avatarPath = "avatar";
+                $avatarExtension = pathinfo($_FILES["avatar"]["name"], PATHINFO_EXTENSION);
+                if (!$this->checkExtensions($avatarExtension)) {
+                    throw new RuntimeException("Недопустимый формат аватара!");
                 }
-                $params["avatar_path"] = $destination;
-            } else {
-                $params["avatar_path"] = null;
             }
 
             $userTable = $this->getUserTable();
@@ -83,6 +83,14 @@ class UserController
             try {
 
                 $id = $userTable->saveUserToDatabase($con, $user);
+                if ($avatarPath != null) {
+                    $avatarPath = "avatar{$id}" . "." . $avatarExtension;
+                    $uploadDir = "uploads/" . $avatarPath;
+                    if (!move_uploaded_file($_FILES["avatar"]["tmp_name"], $uploadDir)) {
+                        throw new \RuntimeException("Ошибка сохранении аватара!");
+                    }
+                    $userTable->updateAvatarPath($con, $id, $avatarPath);
+                }
 
                 $redirectUrl = "?action=profile&user_id=$id";
                 header("Location: " . $redirectUrl, true, 303);
@@ -96,13 +104,18 @@ class UserController
         }
     }
 
-    private function checkRequiredFields(array $ar): bool
+    private static function checkRequiredFields(array $ar): bool
     {
         return !empty($ar["first_name"])
             && !empty($ar["last_name"])
             && !empty($ar["gender"])
             && !empty($ar["birth_date"])
             && !empty($ar["email"]);
+    }
+
+    public static function checkExtensions(string $ext): bool
+    {
+        return $ext == "png" || $ext == "jpeg" || $ext == "gif";
     }
 
     public function getUserTable(): UserTable

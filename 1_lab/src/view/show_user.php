@@ -6,7 +6,7 @@ if ($userId = $_GET['user_id']) {
     $user = $userTable->findUserInDatabase($con, $userId);
 } else {
     $message = "404\nЗапрашиваемая страница не найдена";
-    $redirectUrl = "../view/error.php?msg=" . $message;
+    $redirectUrl = "?error.php?msg=" . $message;
     header("Location: " . $redirectUrl, true, 303);
 }
 
@@ -28,7 +28,7 @@ if ($userId = $_GET['user_id']) {
     <p>Дата рождения: <?= htmlspecialchars($user->getBirthDate()) ?></p>
     <p>Email: <?= htmlspecialchars($user->getEmail()) ?></p>
     <p>Телефон: <?= htmlspecialchars($user->getPhone()) ?></p>
-    <img src="<?= htmlspecialchars($user->getAvatarPath()) ?>" alt="Аватар">
-</body>
+    <p>Аватар:</p>
+    <img src="uploads/<?= htmlspecialchars($user->getAvatarPath()) ?>" alt="Аватар">
 
 </html>
