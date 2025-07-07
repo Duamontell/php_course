@@ -1,8 +1,10 @@
 <?php
 
-namespace App\store;
+declare(strict_types=1);
 
-use App\store\User;
+namespace App\Model;
+
+use App\Model\Entity\User;
 
 class UserTable
 {
@@ -35,7 +37,7 @@ class UserTable
 		if ($lastId == false) {
 			throw new \RuntimeException("Ошибка в сохранении пользователя");
 		}
-		return $lastId;
+		return (int)$lastId;
 	}
 
 	public function updateUserInDatabase(\PDO $pdo, User $user)

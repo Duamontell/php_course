@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\infrastructure;
+namespace App\Infrastructure;
 
 class ConfigLoader
 {

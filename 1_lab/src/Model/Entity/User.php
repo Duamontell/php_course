@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\store;
+namespace App\Model\Entity;
 
 class User
 {

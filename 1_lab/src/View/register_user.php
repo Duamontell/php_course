@@ -4,12 +4,13 @@
 <head>
 	<title>Регистрация пользователя</title>
 	<meta charset="UTF-8">
-	<link rel="stylesheet" href="/src/view/register_user.css">
+	<link rel="stylesheet" href="/public/register_user.css">
 </head>
 
 <body>
+	<!-- Сделать ограничение на длину строки -->
 	<h1>Регистрация пользователя:</h1>
-	<form action="?action=register" enctype="multipart/form-data" method="POST">
+	<form action="?action=register_user" enctype="multipart/form-data" method="POST">
 		<div class="form-row">
 			<label for="first_name-input">Имя:</label>
 			<input type="text" id="first_name-input" name="first_name" required>

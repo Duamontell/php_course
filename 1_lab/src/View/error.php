@@ -17,7 +17,7 @@ $message = $_GET['msg'] ?? 'Страница не найдена';
 		<p>
 			<?php echo ($message); ?>
 		</p>
-		<a href="?action=registration">Вернуться назад</a>
+		<a href="?action=registration_page">Вернуться назад</a>
 	</div>
 </body>
 

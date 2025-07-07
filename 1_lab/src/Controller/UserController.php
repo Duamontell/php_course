@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace App\controller;
+namespace App\Controller;
 
-use App\store\UserTable;
-use App\store\User;
+use App\Model\UserTable;
+use App\Model\Entity\User;
 use RuntimeException;
 
 class UserController
@@ -20,10 +20,8 @@ class UserController
 	public function index()
 	{
 		if (!isset($_GET["action"])) {
-			// $url = parse_url($_SERVER["REQUEST_URI"], PHP_URL_PATH);
-			// if ($url == "/") {
 			if (empty($_SERVER["QUERY_STRING"])) {
-				header("Location: ?action=registration");
+				header("Location: ?action=registration_page");
 				die();
 			}
 			$this->redirectWithError("Страница не найдена!");
@@ -32,24 +30,24 @@ class UserController
 		$action = $_GET["action"];
 		switch ($action) {
 			case "/":
-			case "registration":
-				require_once __DIR__ . "/../view/register_user.php";
+			case "registration_page":
+				require_once __DIR__ . "/../View/register_user.php";
 				break;
-			case "register":
+			case "register_user":
 				$this->registrationUser();
 				break;
 			case "profile":
-				require_once __DIR__ . "/../view/show_user.php";
+				require_once __DIR__ . "/../View/show_user.php";
 				break;
 			case "update":
 				$userId = (int)$_GET["user_id"];
 				$this->updateUserInfo($userId);
 				break;
 			case "error":
-				require_once __DIR__ . "/../view/error.php";
+				require_once __DIR__ . "/../View/error.php";
 				break;
 			default:
-				require_once __DIR__ . "/../view/error.php";
+				require_once __DIR__ . "/../View/error.php";
 				break;
 		}
 	}
@@ -65,7 +63,7 @@ class UserController
 
 			$params["avatar_path"] = null;
 
-			$avatar = $this->collectUserAvatar();
+			$avatar = $this->getUserAvatar();
 
 			$userTable = $this->getUserTable();
 			$con = $userTable->getPDO();
@@ -100,7 +98,7 @@ class UserController
 
 			// $params["avatar_path"] = null;
 
-			$avatar = $this->collectUserAvatar();
+			$avatar = $this->getUserAvatar();
 
 			$userTable = $this->getUserTable();
 			$con = $userTable->getPDO();
@@ -155,7 +153,7 @@ class UserController
 			&& !empty($ar["email"]);
 	}
 
-	private function collectUserAvatar(): ?array
+	private function getUserAvatar(): ?array
 	{
 		$avatar = [
 			"avatarPath" => null,
