@@ -81,7 +81,6 @@ class UserController
             $con = $userTable->getPDO();
             $user = User::createUserFromParams(null, $params);
             try {
-
                 $id = $userTable->saveUserToDatabase($con, $user);
                 if ($avatarPath != null) {
                     $avatarPath = "avatar{$id}" . "." . $avatarExtension;
