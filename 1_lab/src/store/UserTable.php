@@ -6,69 +6,97 @@ use App\store\User;
 
 class UserTable
 {
-    public function __construct(
-        private \PDO $pdo
-    ) {}
+	public function __construct(
+		private \PDO $pdo
+	) {}
 
-    function saveUserToDatabase(\PDO $pdo, User $user): int
-    {
-        $sql = <<<SQL
+	function saveUserToDatabase(\PDO $pdo, User $user): int
+	{
+		$sql = <<<SQL
             INSERT INTO `user`
             (`first_name`, `last_name`, `middle_name`, `gender`, `birth_date`, `email`, `phone`, `avatar_path`)
             VALUES (:first_name, :last_name, :middle_name, :gender, :birth_date, :email, :phone, :avatar_path) 
         SQL;
 
-        $stmt = $pdo->prepare($sql);
-        $user->getUserId();
+		$stmt = $pdo->prepare($sql);
+		$user->getUserId();
 
-        $stmt->execute([
-            ":first_name" => $user->getFirstName(),
-            ":last_name" => $user->getLastName(),
-            ":middle_name" => $user->getMiddleName(),
-            ":gender" => $user->getGender(),
-            ":birth_date" => $user->getBirthDate(),
-            ":email" => $user->getEmail(),
-            ":phone" => $user->getPhone(),
-            ":avatar_path" => $user->getAvatarPath(),
-        ]);
-        (int)$lastId = $pdo->lastInsertId();
-        if ($lastId == false) {
-            throw new \RuntimeException("Ошибка в сохранении пользователя");
-        }
-        return $lastId;
-    }
+		$stmt->execute([
+			":first_name" => $user->getFirstName(),
+			":last_name" => $user->getLastName(),
+			":middle_name" => $user->getMiddleName(),
+			":gender" => $user->getGender(),
+			":birth_date" => $user->getBirthDate(),
+			":email" => $user->getEmail(),
+			":phone" => $user->getPhone(),
+			":avatar_path" => $user->getAvatarPath(),
+		]);
+		(int)$lastId = $pdo->lastInsertId();
+		if ($lastId == false) {
+			throw new \RuntimeException("Ошибка в сохранении пользователя");
+		}
+		return $lastId;
+	}
 
-    function findUserInDatabase(\PDO $pdo, int $userId): ?User
-    {
-        $sql = <<<SQL
+	public function updateUserInDatabase(\PDO $pdo, User $user)
+	{
+		$sql = <<<SQL
+        UPDATE `user`
+        SET
+            `first_name`  = :first_name,
+            `last_name`   = :last_name,
+            `middle_name` = :middle_name,
+            `gender`      = :gender,
+            `birth_date`  = :birth_date,
+            `email`       = :email,
+            `phone`       = :phone
+        WHERE `user_id` = :user_id
+    SQL;
+
+		$stmt = $pdo->prepare($sql);
+		$stmt->execute([
+			':first_name'  => $user->getFirstName(),
+			':last_name'   => $user->getLastName(),
+			':middle_name' => $user->getMiddleName(),
+			':gender'      => $user->getGender(),
+			':birth_date'  => $user->getBirthDate(),
+			':email'       => $user->getEmail(),
+			':phone'       => $user->getPhone(),
+			':user_id'     => $user->getUserId(),
+		]);
+	}
+
+	function findUserInDatabase(\PDO $pdo, int $userId): ?User
+	{
+		$sql = <<<SQL
             SELECT `first_name`, `last_name`, `middle_name`, `gender`, `birth_date`, `email`, `phone`, `avatar_path`
             FROM `user`
             WHERE `user_id` = :user_id;
         SQL;
 
-        $stmt = $pdo->prepare($sql);
-        $stmt->execute([
-            ":user_id" => $userId
-        ]);
+		$stmt = $pdo->prepare($sql);
+		$stmt->execute([
+			":user_id" => $userId
+		]);
 
-        $resultQuery = $stmt->fetch();
-        if ($resultQuery === false) {
-            return null;
-        }
+		$resultQuery = $stmt->fetch();
+		if ($resultQuery === false) {
+			return null;
+		}
 
-        $user = User::createUserFromParams($userId, $resultQuery);
+		$user = User::createUserFromParams($userId, $resultQuery);
 
-        return $user;
-    }
+		return $user;
+	}
 
-    public function updateAvatarPath(\PDO $pdo, int $id, string $path)
-    {
-        $stmt = $pdo->prepare("UPDATE user SET avatar_path = :path WHERE user_id = :id");
-        $stmt->execute([':path' => $path, ':id' => $id]);
-    }
+	public function updateAvatarPathInDatabase(\PDO $pdo, int $id, string $path)
+	{
+		$stmt = $pdo->prepare("UPDATE user SET avatar_path = :path WHERE user_id = :id");
+		$stmt->execute([':path' => $path, ':id' => $id]);
+	}
 
-    public function getPDO()
-    {
-        return $this->pdo;
-    }
+	public function getPDO()
+	{
+		return $this->pdo;
+	}
 }
