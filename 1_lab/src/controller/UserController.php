@@ -110,7 +110,9 @@ class UserController
 			$params["avatar_path"] = $user->getAvatarPath();
 			echo ("PHONE:");
 			if (is_null($params["phone"])) {
-				echo ("NULL<>");
+				echo ("НУЛЬ");
+			} else {
+				echo ("NE NULL");
 			}
 			echo ($params["phone"]);
 			$updatedUser = User::createUserFromParams($userId, $params);
@@ -142,6 +144,7 @@ class UserController
 			$ar["middle_name"] = null;
 		}
 		if (empty($ar["phone"])) {
+			echo ("DELAEM NULL ");
 			$ar["phone"] = null;
 		};
 
