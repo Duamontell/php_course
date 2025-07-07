@@ -33,7 +33,7 @@ class UserTable
 			":phone" => $user->getPhone(),
 			":avatar_path" => $user->getAvatarPath(),
 		]);
-		(int)$lastId = $pdo->lastInsertId();
+		$lastId = $pdo->lastInsertId();
 		if ($lastId == false) {
 			throw new \RuntimeException("Ошибка в сохранении пользователя");
 		}
@@ -91,10 +91,16 @@ class UserTable
 		return $user;
 	}
 
-	public function updateAvatarPathInDatabase(\PDO $pdo, int $id, string $path)
+	public function deleteUserFromDatabase(\PDO $pdo, int $userId)
 	{
-		$stmt = $pdo->prepare("UPDATE user SET avatar_path = :path WHERE user_id = :id");
-		$stmt->execute([':path' => $path, ':id' => $id]);
+		$stmt = $pdo->prepare("DELETE FROM user WHERE user_id = :userId");
+		$stmt->execute([":userId" => $userId]);
+	}
+
+	public function updateAvatarPathInDatabase(\PDO $pdo, int $userId, string $path)
+	{
+		$stmt = $pdo->prepare("UPDATE user SET avatar_path = :path WHERE user_id = :userId");
+		$stmt->execute([':path' => $path, ':userId' => $userId]);
 	}
 
 	public function getPDO()

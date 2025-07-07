@@ -21,6 +21,7 @@ class UserController
 	{
 		if (!isset($_GET["action"])) {
 			if (empty($_SERVER["QUERY_STRING"])) {
+				echo ("sdsd");
 				header("Location: ?action=registration_page");
 				die();
 			}
@@ -43,6 +44,10 @@ class UserController
 				$userId = (int)$_GET["user_id"];
 				$this->updateUserInfo($userId);
 				break;
+			case "delete_user":
+				$userId = (int)$_GET["user_id"];
+				$this->deleteUser($userId);
+				break;
 			case "error":
 				require_once __DIR__ . "/../View/error.php";
 				break;
@@ -52,8 +57,7 @@ class UserController
 		}
 	}
 
-
-	public function registrationUser()
+	private function registrationUser()
 	{
 		try {
 			$params = $_POST;
@@ -81,22 +85,20 @@ class UserController
 				header("Location: " . $redirectUrl, true, 303);
 				die();
 			} catch (\PDOException) {
-				throw new \RuntimeException("Пользователь с таким email или номером телефона уже сущестует");
+				throw new \RuntimeException("Пользователь с таким email или номером телефона уже существует");
 			}
 		} catch (\RuntimeException $e) {
 			$this->redirectWithError($e->getMessage());
 		}
 	}
 
-	public function updateUserInfo(int $userId)
+	private function updateUserInfo(int $userId)
 	{
 		try {
 			$params = $_POST;
 			if (!$this->checkRequiredFields($params)) {
-				throw new \RuntimeException("Обязательные поля должны быть заполнены");
+				throw new \RuntimeException("Обязательные поля должны быть заполнены и/или не превышать лимит символов!");
 			}
-
-			// $params["avatar_path"] = null;
 
 			$avatar = $this->getUserAvatar();
 
@@ -105,31 +107,46 @@ class UserController
 			if (is_null($user = $userTable->findUserInDatabase($con, $userId))) {
 				$this->redirectWithError("Такого пользователя не существует!");
 			}
+
 			$params["avatar_path"] = $user->getAvatarPath();
-			echo ("PHONE:");
-			if (is_null($params["phone"])) {
-				echo ("НУЛЬ");
-			} else {
-				echo ("NE NULL");
-			}
-			echo ($params["phone"]);
 			$updatedUser = User::createUserFromParams($userId, $params);
 
 			try {
-				// $userTable->updateUserInDatabase($con, $updatedUser);
+				$userTable->updateUserInDatabase($con, $updatedUser);
 
-				// if ($avatar != null) {
-				// 	$newAvatarName = $this->generateAvatarFilename($userId, $avatar["avatarExtension"]);
-				// 	$this->moveUserAvatar($_FILES["avatar"]["tmp_name"], $newAvatarName);
-				// 	$userTable->updateAvatarPathInDatabase($con, $userId, $newAvatarName);
-				// }
+				if ($avatar != null) {
+					$newAvatarName = $this->generateAvatarFilename($userId, $avatar["avatarExtension"]);
+					$this->moveUserAvatar($_FILES["avatar"]["tmp_name"], $newAvatarName);
+					$userTable->updateAvatarPathInDatabase($con, $userId, $newAvatarName);
+				}
 
-				// $redirectUrl = "?action=profile&user_id=$userId";
-				// header("Location: " . $redirectUrl, true, 303);
-				// die();
-			} catch (\PDOException $e) {
-				echo ($e->getMessage());
-				// throw new \RuntimeException("Пользователь с таким email или номером телефона уже сущестует");
+				$redirectUrl = "?action=profile&user_id=$userId";
+				header("Location: " . $redirectUrl, true, 303);
+				die();
+			} catch (\PDOException) {
+				throw new \RuntimeException("Пользователь с таким email или номером телефона уже сущестует");
+			}
+		} catch (\RuntimeException $e) {
+			$this->redirectWithError($e->getMessage());
+		}
+	}
+
+	private function deleteUser(int $userId)
+	{
+
+		$userTable = $this->getUserTable();
+		$con = $userTable->getPDO();
+		if (is_null($userTable->findUserInDatabase($con, $userId))) {
+			$this->redirectWithError("Такого пользователя не существует!");
+		}
+
+		try {
+			try {
+				$userTable->deleteUserFromDatabase($con, $userId);
+				header("Location: " . "?action=registration_page", true, 303);
+				die();
+			} catch (\PDOException) {
+				throw new \RuntimeException("Ошибка удаления пользователя");
 			}
 		} catch (\RuntimeException $e) {
 			$this->redirectWithError($e->getMessage());
@@ -141,16 +158,17 @@ class UserController
 		if (empty($ar["middle_name"])) {
 			$ar["middle_name"] = null;
 		}
-		if (empty($ar["phone"])) {
+		if (empty($ar["phone"]) || $ar["phone"] == "") {
 			echo ("DELAEM NULL ");
 			$ar["phone"] = null;
 		};
 
-		return !empty($ar["first_name"])
-			&& !empty($ar["last_name"])
+		return !empty($ar["first_name"]) && strlen($ar["first_name"]) <= 50
+			&& !empty($ar["last_name"]) && strlen($ar["last_name"]) <= 50
+			&& strlen($ar["middle_name"]) <= 50
 			&& !empty($ar["gender"])
 			&& !empty($ar["birth_date"])
-			&& !empty($ar["email"]);
+			&& !empty($ar["email"]) && strlen($ar["email"]) <= 75;
 	}
 
 	private function getUserAvatar(): ?array

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 if (empty($_GET["user_id"])) {
 	$this->redirectWithError("404: Запрашиваемая страница не найдена!");
 }
@@ -11,6 +13,8 @@ if (is_null($user = $userTable->findUserInDatabase($con, $userId))) {
 	$this->redirectWithError("Такого пользователя не существует!");
 }
 
+$dateFromDB = new DateTime($user->getBirthDate());
+$dateFormated = $dateFromDB->format("Y-m-d");
 
 ?>
 
@@ -34,19 +38,19 @@ if (is_null($user = $userTable->findUserInDatabase($con, $userId))) {
 			<label for="first_name-input">Имя: </label>
 			<input type="text" id="first_name-input"
 				value="<?= htmlspecialchars($user->getFirstName()) ?>"
-				name="first_name" required>
+				name="first_name" maxlength="50" required>
 		</div>
 		<div>
 			<label for="last_name-input">Фамилия:</label>
 			<input type="text" id="last_name-input"
 				value="<?= htmlspecialchars($user->getLastName()) ?>"
-				name="last_name" required>
+				name="last_name" maxlength="50" required>
 		</div>
 		<div>
 			<label for="middle_name-input">Отчество:</label>
 			<input type="text" id="middle_name-input"
 				value="<?= htmlspecialchars($user->getMiddleName()) ?>"
-				name="middle_name">
+				name="middle_name" maxlength="50">
 		</div>
 		<div>
 			<label for="gender-select">Пол: </label>
@@ -55,8 +59,8 @@ if (is_null($user = $userTable->findUserInDatabase($con, $userId))) {
 					<?= $user->getGender() == "man" ? "selected" : "" ?>>
 					Мужской
 				</option>
-				<option value="woman">
-					<?= $user->getGender() == "woman" ? "selected" : "" ?>
+				<option value="woman"
+					<?= $user->getGender() == "woman" ? "selected" : "" ?>>
 					Женский
 				</option>
 			</select>
@@ -64,20 +68,20 @@ if (is_null($user = $userTable->findUserInDatabase($con, $userId))) {
 		<div>
 			<label for="birth_date-input">Дата рождения</label>
 			<input type="date" id="birth_date-input"
-				value="<?= htmlspecialchars($user->getBirthDate()) ?>"
+				value="<?= htmlspecialchars($dateFormated) ?>"
 				name="birth_date" required>
 		</div>
 		<div>
 			<label for="email-input">Email</label>
 			<input type="email" id="email-input"
 				value="<?= htmlspecialchars($user->getEmail()) ?>"
-				name="email" required>
+				name="email" maxlength="50" required>
 		</div>
 		<div>
 			<label for="phone-input">Телефон</label>
 			<input type="tel" id="phone-input"
-				value="<?= htmlspecialchars($user->getPhone()) ?>"
-				name="phone">
+				value="<?= htmlspecialchars($user->getPhone() ?? "") ?>"
+				name="phone" maxlength="20">
 		</div>
 		<div>
 			<label for="avatar-input">Аватар</label>
@@ -97,6 +101,9 @@ if (is_null($user = $userTable->findUserInDatabase($con, $userId))) {
 		endif;
 		?>
 		<button type="submit">Обновить данные</button>
+	</form>
+	<form action="?action=delete_user&user_id=<?= $userId ?>" method="POST">
+		<button type="submit">Удалить аккаунт</button>
 	</form>
 	<script>
 		document.getElementById("phone-input").addEventListener("keypress", function(e) {

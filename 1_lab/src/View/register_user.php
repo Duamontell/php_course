@@ -13,15 +13,15 @@
 	<form action="?action=register_user" enctype="multipart/form-data" method="POST">
 		<div class="form-row">
 			<label for="first_name-input">Имя:</label>
-			<input type="text" id="first_name-input" name="first_name" required>
+			<input type="text" id="first_name-input" name="first_name" maxlength="50" required>
 		</div>
 		<div class="form-row">
 			<label for="last_name-input">Фамилия:</label>
-			<input type="text" id="last_name-input" name="last_name" required>
+			<input type="text" id="last_name-input" name="last_name" maxlength="50" required>
 		</div>
 		<div class="form-row">
 			<label for="middle_name-input">Отчество:</label>
-			<input type="text" id="middle_name-input" name="middle_name">
+			<input type="text" id="middle_name-input" name="middle_name" maxlength="50">
 		</div>
 		<div class="form-row">
 			<label for="male_gender-input">Мужчина</label>
@@ -35,11 +35,11 @@
 		</div>
 		<div class="form-row">
 			<label for="email-input">Email</label>
-			<input type="email" id="email-input" name="email" required>
+			<input type="email" id="email-input" name="email" maxlength="50" required>
 		</div>
 		<div class="form-row">
 			<label for="phone-input">Телефон</label>
-			<input type="tel" id="phone-input" name="phone">
+			<input type="tel" id="phone-input" name="phone" maxlength="20">
 		</div>
 		<div class="form-row">
 			<label for="avatar-input">Аватар</label>

@@ -20,15 +20,18 @@ class User
 
 	public static function createUserfromParams(?int $userId, array $params): User
 	{
+		$middleName = $params["middle_name"] != null ? $params["middle_name"] : null;
+		$phone = $params["phone"] != null ? $params["phone"] : null;
+
 		return new User(
 			$userId,
 			$params["first_name"],
 			$params["last_name"],
-			$params["middle_name"],
+			$middleName,
 			$params["gender"],
 			$params["birth_date"],
 			$params["email"],
-			$params["phone"],
+			$phone,
 			$params["avatar_path"]
 		);
 	}
