@@ -1,11 +1,3 @@
-<?php
-
-declare(strict_types=1);
-
-$message = $_GET['msg'] ?? 'Страница не найдена';
-
-?>
-
 <!DOCTYPE html>
 <html>
 
@@ -17,7 +9,7 @@ $message = $_GET['msg'] ?? 'Страница не найдена';
 	<div>
 		<h1>Ошибка!</h1>
 		<p>
-			<?php echo ($message); ?>
+			<?php echo ($message == "" ? "404: Запрашиваемая страница не найдена!" : $message); ?>
 		</p>
 		<a href="?action=registration_page">Вернуться назад</a>
 	</div>

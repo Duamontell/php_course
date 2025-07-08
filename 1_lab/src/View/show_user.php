@@ -1,24 +1,3 @@
-<?php
-
-// Передавать сюда пользователя
-declare(strict_types=1);
-
-if (empty($_GET["user_id"])) {
-	$this->redirectWithError("404: Запрашиваемая страница не найдена!");
-}
-
-$userId = (int) $_GET["user_id"];
-$userTable = $this->getUserTable();
-$con = $userTable->getPDO();
-if (is_null($user = $userTable->findUserInDatabase($con, $userId))) {
-	$this->redirectWithError("Такого пользователя не существует!");
-}
-
-$dateFromDB = new DateTime($user->getBirthDate());
-$dateFormated = $dateFromDB->format("Y-m-d");
-
-?>
-
 <!DOCTYPE html>
 <html>
 
