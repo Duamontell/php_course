@@ -47,6 +47,9 @@
 		</div>
 		<button type="submit">Зарегистрироваться</button>
 	</form>
+	<form action="?action=admin_panel" position="absolute" bottom="0px" method="POST">
+		<button type="submit">Админ панель</button>
+	</form>
 	<script>
 		document.getElementById("phone-input").addEventListener("keypress", function(e) {
 			if (!/[0-9]/.test(e.key)) {

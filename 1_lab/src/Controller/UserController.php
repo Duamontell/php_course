@@ -48,6 +48,9 @@ class UserController
 				$userId = (int)$_GET["user_id"];
 				$this->deleteUser($userId);
 				break;
+			case "admin_panel": 
+				require_once __DIR__ . "/../View/admin_panel.php";
+				break;
 			case "error":
 				require_once __DIR__ . "/../View/error.php";
 				break;
@@ -133,7 +136,6 @@ class UserController
 
 	private function deleteUser(int $userId)
 	{
-
 		$userTable = $this->getUserTable();
 		$con = $userTable->getPDO();
 		if (is_null($userTable->findUserInDatabase($con, $userId))) {

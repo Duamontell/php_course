@@ -91,6 +91,31 @@ class UserTable
 		return $user;
 	}
 
+	/**
+	 * @return Users[]
+	 */
+	public function grabAllUsers($pdo): ?array
+	{
+		$sql = <<<SQL
+            SELECT *
+            FROM user
+        SQL;
+		$stmt = $pdo->prepare($sql);
+		$stmt->execute();
+		$resultQuery = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+		if ($resultQuery === false) {
+			return null;
+		}
+
+		$users = [];
+		foreach ($resultQuery as $row) {
+			$users[] = User::createUserfromParams($row["user_id"], $row);
+		}
+
+
+		return $users;
+	}
+
 	public function deleteUserFromDatabase(\PDO $pdo, int $userId)
 	{
 		$stmt = $pdo->prepare("DELETE FROM user WHERE user_id = :userId");
