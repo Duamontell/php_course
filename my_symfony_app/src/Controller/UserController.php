@@ -1,193 +1,178 @@
 <?php
 
-declare(strict_types=1);
-
 namespace App\Controller;
 
+use App\Infrastructure\DatabaseConnection;
+use App\Infrastructure\ConfigLoader;
 use App\Model\UserTable;
 use App\Model\Entity\User;
 use App\Service\ImageService;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 
-class UserController
+class UserController extends AbstractController
 {
 	private UserTable $userTable;
 	private ImageService $imageService;
 
-	public function __construct(\PDO $pdo)
-	{
+	public function __construct(
+		DatabaseConnection $dbConnection,
+		ConfigLoader $configLoader,
+		ImageService $imageService
+	) {
+		$pdo = DatabaseConnection::connectToDatabase();
 		$this->userTable = new UserTable($pdo);
-		$this->imageService = new ImageService();
+		$this->imageService = $imageService;
 	}
 
-	public function index()
+	/**
+	 * Отобразить форму регистрации
+	 */
+	public function showRegistrationForm(): Response
 	{
-		if (!isset($_GET["action"])) {
-			if (empty($_SERVER["QUERY_STRING"])) {
-				echo ("sdsd");
-				header("Location: ?action=registration_page");
-				die();
-			}
-			$this->redirectWithError("Страница не найдена!");
-		}
-
-		$action = $_GET["action"];
-		switch ($action) {
-			case "/":
-			case "registration_page":
-				require_once __DIR__ . "/../View/register_user.php";
-				break;
-			case "register_user":
-				$this->registrationUser();
-				break;
-			case "profile":
-				$this->showUser();
-				break;
-			case "update":
-				$userId = (int)$_GET["user_id"];
-				$this->updateUserInfo($userId);
-				break;
-			case "delete_user":
-				$userId = (int)$_GET["user_id"];
-				$this->deleteUser($userId);
-				break;
-			case "admin_panel":
-				$this->showAdminPanel();
-				break;
-			case "error":
-				$this->showErrorPage();
-				break;
-			default:
-				$this->showErrorPage();
-				break;
-		}
+		return $this->render('register_user.html.twig', ['action' => 'register']);
 	}
 
-	private function showUser()
+	/**
+	 * Обработать регистрацию
+	 */
+	public function registrationUser(Request $request): Response
 	{
-		if (empty($_GET["user_id"])) {
-			$this->redirectWithError("404: Запрашиваемая страница не найдена!");
-		}
-
-		$userId = (int) $_GET["user_id"];
-		if (is_null($user = $this->getUserTable()->findUserInDatabase($this->getUserTable()->getPDO(), $userId))) {
-			$this->redirectWithError("Такого пользователя не существует!");
-		}
-
-		$dateFromDB = new \DateTime($user->getBirthDate());
-		$dateFormated = $dateFromDB->format("Y-m-d");
-		require_once __DIR__ . "/../View/show_user.php";
-	}
-
-	private function showAdminPanel()
-	{
-		$users = $this->getUserTable()->grabAllUsers($this->getUserTable()->getPDO());
-		require_once __DIR__ . "/../View/admin_panel.php";
-	}
-
-	private function showErrorPage()
-	{
-		$message = $_GET['msg'] ?? '"404: Запрашиваемая страница не найдена!"';
-		require_once __DIR__ . "/../View/error.php";
-	}
-
-	private function registrationUser()
-	{
+		$params = $request->request->all();
 		try {
-			$params = $_POST;
 			if (!$this->checkRequiredFields($params)) {
-				throw new \RuntimeException("Обязательные поля должны быть заполнены!");
+				throw new \RuntimeException('Обязательные поля должны быть заполнены!');
 			}
 
-			if (is_uploaded_file($_FILES["avatar"]["tmp_name"])) {
-				$params["avatar_path"] = $this->imageService->saveUserAvatar($_FILES["avatar"]);
+			$avatarFile = $request->files->get('avatar');
+			if ($avatarFile && $avatarFile->isValid()) {
+				$fileArray = [
+					'tmp_name' => $avatarFile->getPathname(),
+					'name'     => $avatarFile->getClientOriginalName(),
+					'type'     => $avatarFile->getClientMimeType(),
+					'error'    => $avatarFile->getError(),
+					'size'     => $avatarFile->getSize(),
+				];
+				// $params['avatar_path'] = $this->imageService->saveUserAvatar($fileArray);
+				$params['avatar_path'] = $this->imageService->saveUserAvatar($fileArray);
 			} else {
-				$params["avatar_path"] = null;
+				$params['avatar_path'] = null;
 			}
 
 			$user = User::createUserFromParams(null, $params);
-			$id = $this->getUserTable()->saveUserToDatabase($this->getUserTable()->getPDO(), $user);
+			$id = $this->userTable->saveUserToDatabase($this->getUserTable()->getPDO(), $user);
 
-			$redirectUrl = "?action=profile&user_id=$id";
-			header("Location: " . $redirectUrl, true, 303);
-			die();
+			return $this->redirectToRoute('show_user', ['user_id' => $id], Response::HTTP_SEE_OTHER);
 		} catch (\PDOException) {
-			$this->redirectWithError("Пользователь с таким email или номером телефона уже существует");
+			$this->addFlash('error', 'Пользователь с таким email или номером телефона уже существует');
 		} catch (\RuntimeException $e) {
-			$this->redirectWithError($e->getMessage());
+			$this->addFlash('error', $e->getMessage());
 		}
+
+		return $this->redirectToRoute('registration_page');
 	}
 
-	private function updateUserInfo(int $userId)
+	/**
+	 * Показать профиль пользователя
+	 */
+	public function showUser(int $user_id): Response
+	{
+		$user = $this->userTable->findUserInDatabase($this->getUserTable()->getPDO(), $user_id);
+		if (!$user) {
+			$this->addFlash('error', 'Такого пользователя не существует!');
+			return $this->redirectToRoute('registration_page');
+		}
+
+		$birthDate = new \DateTime($user->getBirthDate());
+		return $this->render('show_user.html.twig', [
+			'user' => $user,
+			'birthDate' => $birthDate->format('Y-m-d'),
+		]);
+	}
+
+	/**
+	 * Обновить информацию о пользователе
+	 */
+	public function updateUserInfo(int $user_id, Request $request): Response
 	{
 		try {
-			$params = $_POST;
+			$params = $request->request->all();
 			if (!$this->checkRequiredFields($params)) {
-				throw new \RuntimeException("Обязательные поля должны быть заполнены и/или не превышать лимит символов!");
+				throw new \RuntimeException('Обязательные поля не заполнены или превышают лимит!');
+			}
+			$existingUser = $this->userTable->findUserInDatabase($this->getUserTable()->getPDO(), $user_id);
+			if (!$existingUser) {
+				$this->addFlash('error', 'Такого пользователя не существует!');
+				return $this->redirectToRoute('show_user', ['user_id' => $user_id]);
 			}
 
-			if (is_null($user = $this->getUserTable()->findUserInDatabase($this->getUserTable()->getPDO(), $userId))) {
-				$this->redirectWithError("Такого пользователя не существует!");
-			}
-
-			if (is_uploaded_file($_FILES["avatar"]["tmp_name"])) {
-				$params["avatar_path"] = $this->imageService->saveUserAvatar($_FILES["avatar"]);
+			$avatarFile = $request->files->get('avatar');
+			if ($avatarFile && $avatarFile->isValid()) {
+				$params['avatar_path'] = $this->imageService->saveUserAvatar($avatarFile);
 			} else {
-				$params["avatar_path"] = $user->getAvatarPath();
+				$params['avatar_path'] = $existingUser->getAvatarPath();
 			}
 
-			$updatedUser = User::createUserFromParams($userId, $params);
+			$updatedUser = User::createUserFromParams($user_id, $params);
+			$this->userTable->updateUserInDatabase($this->getUserTable()->getPDO(), $updatedUser);
 
-			$this->getUserTable()->updateUserInDatabase($this->getUserTable()->getPDO(), $updatedUser);
-
-			$redirectUrl = "?action=profile&user_id=$userId";
-			header("Location: " . $redirectUrl, true, 303);
-			die();
-		} catch (\PDOException $e) {
-			$this->redirectWithError("Пользователь с таким email или номером телефона уже сущестует");
-		} catch (\RuntimeException $e) {
-			$this->redirectWithError($e->getMessage());
-		}
-	}
-
-	private function deleteUser(int $userId)
-	{
-		if (is_null($this->getUserTable()->findUserInDatabase($this->getUserTable()->getPDO(), $userId))) {
-			$this->redirectWithError("Такого пользователя не существует!");
-		}
-
-		try {
-			$this->getUserTable()->deleteUserFromDatabase($this->getUserTable()->getPDO(), $userId);
-			header("Location: " . "?action=registration_page", true, 303);
-			die();
+			return $this->redirectToRoute('show_user', ['user_id' => $user_id], Response::HTTP_SEE_OTHER);
 		} catch (\PDOException) {
-			$this->redirectWithError("Ошибка удаления пользователя");
+			$this->addFlash('error', 'Пользователь с таким email или телефоном уже существует');
 		} catch (\RuntimeException $e) {
-			$this->redirectWithError($e->getMessage());
+			$this->addFlash('error', $e->getMessage());
 		}
+
+		return $this->redirectToRoute('show_user', ['user_id' => $user_id]);
 	}
 
-	private static function checkRequiredFields(array $ar): bool
+	/**
+	 * Админ-панель: список пользователей
+	 */
+	public function showAdminPanel(): Response
 	{
-		if (empty($ar["middle_name"])) {
-			$ar["middle_name"] = null;
-		}
-		if (empty($ar["phone"]) || $ar["phone"] == "") {
-			$ar["phone"] = null;
-		};
-
-		return !empty($ar["first_name"]) && strlen($ar["first_name"]) <= 50
-			&& !empty($ar["last_name"]) && strlen($ar["last_name"]) <= 50
-			&& strlen($ar["middle_name"]) <= 50
-			&& !empty($ar["gender"])
-			&& !empty($ar["birth_date"])
-			&& !empty($ar["email"]) && strlen($ar["email"]) <= 75;
+		$users = $this->userTable->grabAllUsers($this->getUserTable()->getPDO());
+		return $this->render('admin_panel.html.twig', ['users' => $users]);
 	}
 
-	public static function redirectWithError(string $message)
+	/**
+	 * Удалить пользователя
+	 */
+	public function deleteUser(int $user_id): Response
 	{
-		$redirectUrl = "?action=error&msg=" . $message;
-		header("Location: " . $redirectUrl, true, 303);
-		die();
+		$user = $this->userTable->findUserInDatabase($this->getUserTable()->getPDO(), $user_id);
+		if (!$user) {
+			$this->addFlash('error', 'Пользователь не найден');
+		} else {
+			try {
+				$this->userTable->deleteUserFromDatabase($this->getUserTable()->getPDO(), $user_id);
+				$this->addFlash('success', 'Пользователь удалён');
+			} catch (\Exception) {
+				$this->addFlash('error', 'Ошибка при удалении пользователя');
+			}
+		}
+		return $this->redirectToRoute('registration_page', [], Response::HTTP_SEE_OTHER);
+	}
+
+	/**
+	 * Проверка обязательных полей
+	 */
+	private function checkRequiredFields(array $ar): bool
+	{
+		if (empty($ar['middle_name'])) {
+			$ar['middle_name'] = null;
+		}
+		if (empty($ar['phone'])) {
+			$ar['phone'] = null;
+		}
+
+		return !empty($ar['first_name']) && mb_strlen($ar['first_name']) <= 50
+			&& !empty($ar['last_name']) && mb_strlen($ar['last_name']) <= 50
+			&& mb_strlen((string) $ar['middle_name']) <= 50
+			&& !empty($ar['gender'])
+			&& !empty($ar['birth_date'])
+			&& !empty($ar['email']) && mb_strlen($ar['email']) <= 75;
 	}
 
 	private function getUserTable(): UserTable
