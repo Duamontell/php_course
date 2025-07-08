@@ -43,17 +43,17 @@ class UserTable
 	public function updateUserInDatabase(\PDO $pdo, User $user)
 	{
 		$sql = <<<SQL
-        UPDATE `user`
-        SET
-            `first_name`  = :first_name,
-            `last_name`   = :last_name,
-            `middle_name` = :middle_name,
-            `gender`      = :gender,
-            `birth_date`  = :birth_date,
-            `email`       = :email,
-            `phone`       = :phone
-        WHERE `user_id` = :user_id
-    SQL;
+            UPDATE `user`
+            SET `first_name`  = :first_name,
+                `last_name`   = :last_name,
+                `middle_name` = :middle_name,
+                `gender`      = :gender,
+                `birth_date`  = :birth_date,
+                `email`       = :email,
+                `phone`       = :phone,
+                `avatar_path` = :avatar_path
+            WHERE `user_id` = :user_id
+        SQL;
 
 		$stmt = $pdo->prepare($sql);
 		$stmt->execute([
@@ -64,8 +64,10 @@ class UserTable
 			':birth_date'  => $user->getBirthDate(),
 			':email'       => $user->getEmail(),
 			':phone'       => $user->getPhone(),
-			':user_id'     => $user->getUserId(),
+			':avatar_path' => $user->getAvatarPath(),
+			':user_id'     => $user->getUserId()
 		]);
+		echo ("sdsds");
 	}
 
 	function findUserInDatabase(\PDO $pdo, int $userId): ?User
