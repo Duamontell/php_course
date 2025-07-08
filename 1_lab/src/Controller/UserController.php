@@ -48,7 +48,7 @@ class UserController
 				$userId = (int)$_GET["user_id"];
 				$this->deleteUser($userId);
 				break;
-			case "admin_panel": 
+			case "admin_panel":
 				require_once __DIR__ . "/../View/admin_panel.php";
 				break;
 			case "error":
@@ -72,24 +72,24 @@ class UserController
 
 			$avatar = $this->getUserAvatar();
 
+			// Убрать лишние соединения с БД
 			$userTable = $this->getUserTable();
 			$con = $userTable->getPDO();
 			$user = User::createUserFromParams(null, $params);
-			try {
-				$id = $userTable->saveUserToDatabase($con, $user);
+			$id = $userTable->saveUserToDatabase($con, $user);
 
-				if ($avatar != null) {
-					$newAvatarName = $this->generateAvatarFilename($id, $avatar["avatarExtension"]);
-					$this->moveUserAvatar($_FILES["avatar"]["tmp_name"], $newAvatarName);
-					$userTable->updateAvatarPathInDatabase($con, $id, $newAvatarName);
-				}
-
-				$redirectUrl = "?action=profile&user_id=$id";
-				header("Location: " . $redirectUrl, true, 303);
-				die();
-			} catch (\PDOException) {
-				throw new \RuntimeException("Пользователь с таким email или номером телефона уже существует");
+			if ($avatar != null) {
+				// Переместить в ImageService
+				$newAvatarName = $this->generateAvatarFilename($id, $avatar["avatarExtension"]);
+				$this->moveUserAvatar($_FILES["avatar"]["tmp_name"], $newAvatarName);
+				$userTable->updateAvatarPathInDatabase($con, $id, $newAvatarName);
 			}
+
+			$redirectUrl = "?action=profile&user_id=$id";
+			header("Location: " . $redirectUrl, true, 303);
+			die();
+		} catch (\PDOException) {
+			$this->redirectWithError("Пользователь с таким email или номером телефона уже существует");
 		} catch (\RuntimeException $e) {
 			$this->redirectWithError($e->getMessage());
 		}
@@ -114,21 +114,20 @@ class UserController
 			$params["avatar_path"] = $user->getAvatarPath();
 			$updatedUser = User::createUserFromParams($userId, $params);
 
-			try {
-				$userTable->updateUserInDatabase($con, $updatedUser);
 
-				if ($avatar != null) {
-					$newAvatarName = $this->generateAvatarFilename($userId, $avatar["avatarExtension"]);
-					$this->moveUserAvatar($_FILES["avatar"]["tmp_name"], $newAvatarName);
-					$userTable->updateAvatarPathInDatabase($con, $userId, $newAvatarName);
-				}
+			$userTable->updateUserInDatabase($con, $updatedUser);
 
-				$redirectUrl = "?action=profile&user_id=$userId";
-				header("Location: " . $redirectUrl, true, 303);
-				die();
-			} catch (\PDOException) {
-				throw new \RuntimeException("Пользователь с таким email или номером телефона уже сущестует");
+			if ($avatar != null) {
+				$newAvatarName = $this->generateAvatarFilename($userId, $avatar["avatarExtension"]);
+				$this->moveUserAvatar($_FILES["avatar"]["tmp_name"], $newAvatarName);
+				$userTable->updateAvatarPathInDatabase($con, $userId, $newAvatarName);
 			}
+
+			$redirectUrl = "?action=profile&user_id=$userId";
+			header("Location: " . $redirectUrl, true, 303);
+			die();
+		} catch (\PDOException) {
+			$this->redirectWithError("Пользователь с таким email или номером телефона уже сущестует");
 		} catch (\RuntimeException $e) {
 			$this->redirectWithError($e->getMessage());
 		}
@@ -143,13 +142,11 @@ class UserController
 		}
 
 		try {
-			try {
-				$userTable->deleteUserFromDatabase($con, $userId);
-				header("Location: " . "?action=registration_page", true, 303);
-				die();
-			} catch (\PDOException) {
-				throw new \RuntimeException("Ошибка удаления пользователя");
-			}
+			$userTable->deleteUserFromDatabase($con, $userId);
+			header("Location: " . "?action=registration_page", true, 303);
+			die();
+		} catch (\PDOException) {
+			$this->redirectWithError("Ошибка удаления пользователя");
 		} catch (\RuntimeException $e) {
 			$this->redirectWithError($e->getMessage());
 		}
@@ -208,7 +205,7 @@ class UserController
 
 	private static function checkFileExtensions(string $ext): bool
 	{
-		return $ext == "png" || $ext == "jpeg" || $ext == "gif";
+		return in_array($ext, ["png", "jpeg", "gif"]);
 	}
 
 	public static function redirectWithError(string $message)

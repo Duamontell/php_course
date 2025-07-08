@@ -1,5 +1,6 @@
 <?php
 
+// Передавать сюда пользователя
 declare(strict_types=1);
 
 if (empty($_GET["user_id"])) {
