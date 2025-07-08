@@ -19,6 +19,12 @@ $users = $userTable->grabAllUsers($con);
 			border: 4px solid;
 			display: flex;
 			margin-bottom: 3px;
+			justify-content: space-between;
+		}
+
+		a {
+			text-decoration: none;
+			color: black;
 		}
 	</style>
 </head>
@@ -32,13 +38,15 @@ $users = $userTable->grabAllUsers($con);
 		<?php foreach ($users as $user) : ?>
 			<form action="?action=delete_user&user_id=<?= $user->getUserId() ?>" method="POST">
 				<div>
-					<p>
-						<?= htmlspecialchars(
-							$user->getLastName() . " " .
-								$user->getFirstName() . " " .
-								($user->getMiddleName() ?? "")
-						) ?>
-					</p>
+					<a href="?action=profile&user_id=<?= $user->getUserId() ?>">
+						<p>
+							<?= htmlspecialchars(
+								$user->getLastName() . " " .
+									$user->getFirstName() . " " .
+									($user->getMiddleName() ?? "")
+							) ?>
+						</p>
+					</a>
 					<button type="submit"> Удалить</button>
 				</div>
 			</form>
