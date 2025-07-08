@@ -72,17 +72,14 @@ class UserController
 
 			$avatar = $this->getUserAvatar();
 
-			// Убрать лишние соединения с БД
-			$userTable = $this->getUserTable();
-			$con = $userTable->getPDO();
 			$user = User::createUserFromParams(null, $params);
-			$id = $userTable->saveUserToDatabase($con, $user);
+			$id = $this->getUserTable()->saveUserToDatabase($this->getUserTable()->getPDO(), $user);
 
 			if ($avatar != null) {
 				// Переместить в ImageService
 				$newAvatarName = $this->generateAvatarFilename($id, $avatar["avatarExtension"]);
 				$this->moveUserAvatar($_FILES["avatar"]["tmp_name"], $newAvatarName);
-				$userTable->updateAvatarPathInDatabase($con, $id, $newAvatarName);
+				$this->getUserTable()->updateAvatarPathInDatabase($this->getUserTable()->getPDO(), $id, $newAvatarName);
 			}
 
 			$redirectUrl = "?action=profile&user_id=$id";
@@ -105,22 +102,19 @@ class UserController
 
 			$avatar = $this->getUserAvatar();
 
-			$userTable = $this->getUserTable();
-			$con = $userTable->getPDO();
-			if (is_null($user = $userTable->findUserInDatabase($con, $userId))) {
+			if (is_null($user = $this->getUserTable()->findUserInDatabase($this->getUserTable()->getPDO(), $userId))) {
 				$this->redirectWithError("Такого пользователя не существует!");
 			}
 
 			$params["avatar_path"] = $user->getAvatarPath();
 			$updatedUser = User::createUserFromParams($userId, $params);
 
-
-			$userTable->updateUserInDatabase($con, $updatedUser);
+			$this->getUserTable()->updateUserInDatabase($this->getUserTable()->getPDO(), $updatedUser);
 
 			if ($avatar != null) {
 				$newAvatarName = $this->generateAvatarFilename($userId, $avatar["avatarExtension"]);
 				$this->moveUserAvatar($_FILES["avatar"]["tmp_name"], $newAvatarName);
-				$userTable->updateAvatarPathInDatabase($con, $userId, $newAvatarName);
+				$this->getUserTable()->updateAvatarPathInDatabase($this->getUserTable()->getPDO(), $userId, $newAvatarName);
 			}
 
 			$redirectUrl = "?action=profile&user_id=$userId";
@@ -135,14 +129,12 @@ class UserController
 
 	private function deleteUser(int $userId)
 	{
-		$userTable = $this->getUserTable();
-		$con = $userTable->getPDO();
-		if (is_null($userTable->findUserInDatabase($con, $userId))) {
+		if (is_null($this->getUserTable()->findUserInDatabase($this->getUserTable()->getPDO(), $userId))) {
 			$this->redirectWithError("Такого пользователя не существует!");
 		}
 
 		try {
-			$userTable->deleteUserFromDatabase($con, $userId);
+			$this->getUserTable()->deleteUserFromDatabase($this->getUserTable()->getPDO(), $userId);
 			header("Location: " . "?action=registration_page", true, 303);
 			die();
 		} catch (\PDOException) {
