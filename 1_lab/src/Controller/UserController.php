@@ -38,7 +38,7 @@ class UserController
 				$this->registrationUser();
 				break;
 			case "profile":
-				require_once __DIR__ . "/../View/show_user.php";
+				$this->showUser();
 				break;
 			case "update":
 				$userId = (int)$_GET["user_id"];
@@ -49,15 +49,43 @@ class UserController
 				$this->deleteUser($userId);
 				break;
 			case "admin_panel":
-				require_once __DIR__ . "/../View/admin_panel.php";
+				$this->showAdminPanel();
 				break;
 			case "error":
-				require_once __DIR__ . "/../View/error.php";
+				$this->showErrorPage();
 				break;
 			default:
-				require_once __DIR__ . "/../View/error.php";
+				$this->showErrorPage();
 				break;
 		}
+	}
+
+	private function showUser()
+	{
+		if (empty($_GET["user_id"])) {
+			$this->redirectWithError("404: Запрашиваемая страница не найдена!");
+		}
+
+		$userId = (int) $_GET["user_id"];
+		if (is_null($user = $this->getUserTable()->findUserInDatabase($this->getUserTable()->getPDO(), $userId))) {
+			$this->redirectWithError("Такого пользователя не существует!");
+		}
+
+		$dateFromDB = new \DateTime($user->getBirthDate());
+		$dateFormated = $dateFromDB->format("Y-m-d");
+		require_once __DIR__ . "/../View/show_user.php";
+	}
+
+	private function showAdminPanel()
+	{
+		$users = $this->getUserTable()->grabAllUsers($this->getUserTable()->getPDO());
+		require_once __DIR__ . "/../View/admin_panel.php";
+	}
+
+	private function showErrorPage()
+	{
+		$message = $_GET['msg'] ?? '"404: Запрашиваемая страница не найдена!"';
+		require_once __DIR__ . "/../View/error.php";
 	}
 
 	private function registrationUser()

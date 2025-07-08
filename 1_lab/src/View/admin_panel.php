@@ -1,13 +1,3 @@
-<?php
-
-declare(strict_types=1);
-
-$userTable = $this->getUserTable();
-$con = $userTable->getPDO();
-$users = $userTable->grabAllUsers($con);
-
-?>
-
 <!DOCTYPE html>
 <html lang="ru">
 
