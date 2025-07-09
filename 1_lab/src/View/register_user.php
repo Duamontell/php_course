@@ -8,7 +8,6 @@
 </head>
 
 <body>
-	<!-- Сделать ограничение на длину строки -->
 	<h1>Регистрация пользователя:</h1>
 	<form action="?action=register_user" enctype="multipart/form-data" method="POST">
 		<div class="form-row">

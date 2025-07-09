@@ -32,8 +32,8 @@
 						<p>
 							<?= htmlspecialchars(
 								$user->getLastName() . " " .
-									$user->getFirstName() . " " .
-									($user->getMiddleName() ?? "")
+								$user->getFirstName() . " " .
+								($user->getMiddleName() ?? "")
 							) ?>
 						</p>
 					</a>

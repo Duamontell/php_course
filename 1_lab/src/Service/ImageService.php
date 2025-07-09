@@ -13,18 +13,18 @@ class ImageService
 	public function saveUserAvatar(array $file): string
 	{
 		if ($file['error'] !== UPLOAD_ERR_OK) {
-			throw new \RuntimeException('Ошибка при загрузке файла.');
+			throw new \RuntimeException('Ошибка при загрузке файла!');
 		}
 
 		$avatarExtension = pathinfo($file["name"], PATHINFO_EXTENSION);
 		if (!$this->checkFileExtensions($avatarExtension)) {
-			throw new \RuntimeException("Недопустимый формат аватара");
+			throw new \RuntimeException("Недопустимый формат изображения!");
 		}
 
-		$newAvatarName = $this->generateAvatarFilename($avatarExtension);
-		$this->moveUserAvatar($file["tmp_name"], $newAvatarName);
+		$newFileName = $this->generateAvatarFilename($avatarExtension);
+		$this->moveUserAvatar($file["tmp_name"], $newFileName);
 
-		return $newAvatarName;
+		return $newFileName;
 	}
 
 	private function checkFileExtensions(string $ext): bool
@@ -41,9 +41,8 @@ class ImageService
 	private function moveUserAvatar(string $path, string $filename)
 	{
 		$uploadDir = "uploads/" . $filename;
-		echo($path);
 		if (!move_uploaded_file($path, $uploadDir)) {
-			// throw new \RuntimeException("Ошибка сохранении аватара!");
+			throw new \RuntimeException("Ошибка сохранении изображения!");
 		}
 	}
 }

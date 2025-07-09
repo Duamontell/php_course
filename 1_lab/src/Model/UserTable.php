@@ -8,6 +8,7 @@ use App\Model\Entity\User;
 
 class UserTable
 {
+	// Обращаться через this 
 	public function __construct(
 		private \PDO $pdo
 	) {}
@@ -21,7 +22,6 @@ class UserTable
         SQL;
 
 		$stmt = $pdo->prepare($sql);
-		$user->getUserId();
 
 		$stmt->execute([
 			":first_name" => $user->getFirstName(),
