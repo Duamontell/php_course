@@ -6,21 +6,21 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use App\Infrastructure\DatabaseConnection;
-use App\Model\UserTable;
-use App\Model\Entity\User;
+use App\Repository\UserRepository;
+use App\Entity\User;
 use App\Service\ImageService;
 use RuntimeException;
 
 class UserController extends AbstractController
 {
-	private UserTable $userTable;
+	private UserRepository $userTable;
 	private ImageService $imageService;
 
 	public function __construct(
 		ImageService $imageService
 	) {
 		$pdo = DatabaseConnection::connectToDatabase();
-		$this->userTable = new UserTable($pdo);
+		$this->userTable = new UserRepository($pdo);
 		$this->imageService = $imageService;
 	}
 
@@ -38,7 +38,7 @@ class UserController extends AbstractController
 			}
 
 			$avatarFile = $request->files->get('avatar');
-			if ($avatarFile && $avatarFile->isValid()) {
+			if ($avatarFile) {
 				$fileArray = [
 					'tmp_name' => $avatarFile->getPathname(),
 					'name'     => $avatarFile->getClientOriginalName(),
@@ -90,16 +90,24 @@ class UserController extends AbstractController
 			}
 
 			$avatarFile = $request->files->get('avatar');
-			if ($avatarFile && $avatarFile->isValid()) {
-
-				$params['avatar_path'] = $this->imageService->saveImage($avatarFile);
+			if ($avatarFile) {
+				if ($user->getAvatarPath() != null) {
+					if (!$this->imageService->deleteImage($user->getAvatarPath())) {
+						throw new RuntimeException("Ошибка удаления аватара!");
+					}
+				}
+				$fileArray = [
+					'tmp_name' => $avatarFile->getPathname(),
+					'name'     => $avatarFile->getClientOriginalName(),
+					'type'     => $avatarFile->getClientMimeType(),
+					'error'    => $avatarFile->getError(),
+					'size'     => $avatarFile->getSize(),
+				];
+				$params['avatar_path'] = $this->imageService->saveImage($fileArray);
 			} else {
 				$params['avatar_path'] = $user->getAvatarPath();
 			}
 
-			if (!$this->imageService->deleteImage($user->getAvatarPath())) {
-				throw new RuntimeException("Ошибка удаления аватара!");
-			}
 			$updatedUser = User::createUserFromParams($userId, $params);
 			$this->userTable->updateUserInDatabase($updatedUser);
 		} catch (\PDOException) {

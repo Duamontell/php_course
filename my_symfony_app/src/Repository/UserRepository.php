@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace App\Model;
+namespace App\Repository;
 
-use App\Model\Entity\User;
+use App\Entity\User;
 
-class UserTable
+class UserRepository
 {
 	public function __construct(
 		private \PDO $pdo
