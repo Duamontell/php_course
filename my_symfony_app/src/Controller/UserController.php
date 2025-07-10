@@ -9,18 +9,17 @@ use App\Infrastructure\DatabaseConnection;
 use App\Repository\UserRepository;
 use App\Entity\User;
 use App\Service\ImageService;
-use RuntimeException;
 
 class UserController extends AbstractController
 {
-	private UserRepository $userTable;
+	private UserRepository $userRepository;
 	private ImageService $imageService;
 
 	public function __construct(
 		ImageService $imageService
 	) {
 		$pdo = DatabaseConnection::connectToDatabase();
-		$this->userTable = new UserRepository($pdo);
+		$this->userRepository = new UserRepository($pdo);
 		$this->imageService = $imageService;
 	}
 
@@ -52,7 +51,7 @@ class UserController extends AbstractController
 			}
 
 			$user = User::createUserFromParams(null, $params);
-			$id = $this->userTable->saveUserToDatabase($user);
+			$id = $this->userRepository->store($user);
 
 			return $this->redirectToRoute('show_user', ['userId' => $id], Response::HTTP_SEE_OTHER);
 		} catch (\PDOException) {
@@ -66,7 +65,7 @@ class UserController extends AbstractController
 
 	public function showUser(int $userId): Response
 	{
-		if (is_null($user = $this->userTable->findUserInDatabase($userId))) {
+		if (is_null($user = $this->userRepository->findUserInDatabase($userId))) {
 			return $this->redirectToRoute('error_page', ['message' => "Такого пользователя не существует!"], Response::HTTP_SEE_OTHER);
 		}
 
@@ -85,7 +84,7 @@ class UserController extends AbstractController
 			if (!$this->checkRequiredFields($params)) {
 				throw new \RuntimeException('Обязательные поля не заполнены или превышают лимит символов!');
 			}
-			if (!$user = $this->userTable->findUserInDatabase($userId)) {
+			if (!$user = $this->userRepository->findUserInDatabase($userId)) {
 				return $this->redirectToRoute('error_page', ['message' => "Такого пользователя не существует!"], Response::HTTP_SEE_OTHER);
 			}
 
@@ -93,7 +92,7 @@ class UserController extends AbstractController
 			if ($avatarFile) {
 				if ($user->getAvatarPath() != null) {
 					if (!$this->imageService->deleteImage($user->getAvatarPath())) {
-						throw new RuntimeException("Ошибка удаления аватара!");
+						throw new \RuntimeException("Ошибка удаления аватара!");
 					}
 				}
 				$fileArray = [
@@ -109,7 +108,7 @@ class UserController extends AbstractController
 			}
 
 			$updatedUser = User::createUserFromParams($userId, $params);
-			$this->userTable->updateUserInDatabase($updatedUser);
+			$this->userRepository->updateUserInDatabase($updatedUser);
 		} catch (\PDOException) {
 			return $this->redirectToRoute('error_page', ['message' => 'Пользователь с таким email или номером телефона уже существует'], Response::HTTP_SEE_OTHER);
 		} catch (\RuntimeException $e) {
@@ -121,19 +120,19 @@ class UserController extends AbstractController
 
 	public function showAdminPanel(): Response
 	{
-		$users = $this->userTable->grabAllUsers();
+		$users = $this->userRepository->grabAllUsers();
 		return $this->render('admin_panel.html.twig', ['users' => $users]);
 	}
 
 	public function deleteUser(int $userId): Response
 	{
-		if (!$user = $this->userTable->findUserInDatabase($userId)) {
+		if (!$user = $this->userRepository->findUserInDatabase($userId)) {
 			return $this->redirectToRoute('error_page', ['message' => 'Пользователь не найден'], Response::HTTP_SEE_OTHER);
 		} else {
 			try {
-				$this->userTable->deleteUserFromDatabase($userId);
+				$this->userRepository->deleteUserFromDatabase($userId);
 				if (!$this->imageService->deleteImage($user->getAvatarPath())) {
-					throw new RuntimeException("Ошибка удаления аватара!");
+					throw new \RuntimeException("Ошибка удаления аватара!");
 				}
 			} catch (\PDOException) {
 				return $this->redirectToRoute('error_page', ['message' => "Ошибка при удалении пользователя"], Response::HTTP_SEE_OTHER);
