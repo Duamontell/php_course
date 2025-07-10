@@ -1,0 +1,36 @@
+home:
+  path: /
+  controller: App\Controller\UserController::showRegistrationForm
+
+registration_page:
+  path: /registration
+  controller: App\Controller\UserController::showRegistrationForm
+
+register_user:
+  path: /register
+  controller: App\Controller\UserController::registrationUser
+  methods: POST
+
+show_user:
+  path: /user/{userId}
+  controller: App\Controller\UserController::showUser
+  methods: GET
+
+update_user:
+  path: /user/{userId}/edit
+  controller: App\Controller\UserController::updateUserInfo
+  methods: POST
+
+admin_panel:
+  path: /admin
+  controller: App\Controller\UserController::showAdminPanel
+
+delete_user:
+  path: /user/{userId}/delete
+  controller: App\Controller\UserController::deleteUser
+  methods: POST
+
+error_page:
+  path: /error
+  controller: App\Controller\UserController::showError
+  methods: GET

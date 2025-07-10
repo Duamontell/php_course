@@ -1,0 +1,45 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Профиль пользователя{% endblock %}
+
+{% block stylesheets %}
+{{ parent() }}
+<meta charset="UTF-8">
+<style>
+	div {
+		border: 4px solid;
+		display: flex;
+		margin-bottom: 3px;
+		justify-content: space-between;
+	}
+
+	a {
+		text-decoration: none;
+		color: black;
+	}
+</style>
+{% endblock %}
+
+{% block body %}
+
+<body>
+	<h1>Список пользователей</h1>
+	{% if users is not empty %}
+	<p>Формат отображения: ФИО</p>
+	{% for user in users %}
+	<form action="user/{{user.userId}}/delete" method="POST">
+		<div>
+			<a href="user/{{user.userId}}">
+				<p>
+					{{ user.lastName ~ ' ' ~ user.firstName ~ ' ' ~ (user.middleName|default('')) }}
+				</p>
+			</a>
+			<button type="submit"> Удалить</button>
+		</div>
+	</form>
+	{% endfor %}
+	{% else %}
+	<p>Пользователи не найдены</p>
+	{% endif %}
+</body>
+{% endblock %}

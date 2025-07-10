@@ -1,15 +1,16 @@
-<!DOCTYPE html>
-<html lang="ru">
+{% extends 'base.html.twig' %}
+{% block title %}Профиль пользователя{% endblock %}
 
-<head>
-	<title>Регистрация пользователя</title>
-	<meta charset="UTF-8">
-	<link rel="stylesheet" href="/public/register_user.css">
-</head>
+{% block stylesheets %}
+<link href="css/register_user.css" type="text/css" rel="stylesheet" />
+{% endblock %}
+
+
+{% block body %}
 
 <body>
 	<h1>Регистрация пользователя:</h1>
-	<form action="?action=register_user" enctype="multipart/form-data" method="POST">
+	<form action="{{action}}" enctype="multipart/form-data" method="POST">
 		<div class="form-row">
 			<label for="first_name-input">Имя:</label>
 			<input type="text" id="first_name-input" name="first_name" maxlength="50" required>
@@ -46,16 +47,15 @@
 		</div>
 		<button type="submit">Зарегистрироваться</button>
 	</form>
-	<form action="?action=admin_panel" position="absolute" bottom="0px" method="POST">
+	<form action="admin" position="absolute" bottom="0px" method="POST">
 		<button type="submit">Админ панель</button>
 	</form>
 	<script>
-		document.getElementById("phone-input").addEventListener("keypress", function(e) {
+		document.getElementById("phone-input").addEventListener("keypress", function (e) {
 			if (!/[0-9]/.test(e.key)) {
 				e.preventDefault();
 			}
 		})
 	</script>
 </body>
-
-</html>
+{% endblock %}

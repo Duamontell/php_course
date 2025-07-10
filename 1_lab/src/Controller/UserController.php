@@ -7,10 +7,10 @@ namespace App\Controller;
 use App\Model\UserTable;
 use App\Model\Entity\User;
 use App\Service\ImageService;
-use Ramsey\Uuid\Uuid;
 
 class UserController
 {
+	// Обращаться напрямую к полю класса
 	private UserTable $userTable;
 	private ImageService $imageService;
 
@@ -70,7 +70,7 @@ class UserController
 		}
 
 		$userId = (int) $_GET["user_id"];
-		if (is_null($user = $this->getUserTable()->findUserInDatabase($this->getUserTable()->getPDO(), $userId))) {
+		if (is_null($user = $this->userTable->findUserInDatabase($this->userTable->getPDO(), $userId))) {
 			$this->redirectWithError("Такого пользователя не существует!");
 		}
 
@@ -81,7 +81,7 @@ class UserController
 
 	private function showAdminPanel()
 	{
-		$users = $this->getUserTable()->grabAllUsers($this->getUserTable()->getPDO());
+		$users = $this->userTable->grabAllUsers($this->userTable->getPDO());
 		require_once __DIR__ . "/../View/admin_panel.php";
 	}
 
@@ -106,7 +106,7 @@ class UserController
 			}
 
 			$user = User::createUserFromParams(null, $params);
-			$id = $this->getUserTable()->saveUserToDatabase($this->getUserTable()->getPDO(), $user);
+			$id = $this->userTable->saveUserToDatabase($user);
 
 			$redirectUrl = "?action=profile&user_id=$id";
 			header("Location: " . $redirectUrl, true, 303);
@@ -126,11 +126,12 @@ class UserController
 				throw new \RuntimeException("Обязательные поля должны быть заполнены и/или не превышать лимит символов!");
 			}
 
-			if (is_null($user = $this->getUserTable()->findUserInDatabase($this->getUserTable()->getPDO(), $userId))) {
+			if (is_null($user = $this->userTable->findUserInDatabase($userId))) {
 				$this->redirectWithError("Такого пользователя не существует!");
 			}
 
 			if (is_uploaded_file($_FILES["avatar"]["tmp_name"])) {
+				// Удалить старую аватарку
 				$params["avatar_path"] = $this->imageService->saveUserAvatar($_FILES["avatar"]);
 			} else {
 				$params["avatar_path"] = $user->getAvatarPath();
@@ -138,7 +139,7 @@ class UserController
 
 			$updatedUser = User::createUserFromParams($userId, $params);
 
-			$this->getUserTable()->updateUserInDatabase($this->getUserTable()->getPDO(), $updatedUser);
+			$this->userTable->updateUserInDatabase($this->userTable->getPDO(), $updatedUser);
 
 			$redirectUrl = "?action=profile&user_id=$userId";
 			header("Location: " . $redirectUrl, true, 303);
@@ -152,12 +153,13 @@ class UserController
 
 	private function deleteUser(int $userId)
 	{
-		if (is_null($this->getUserTable()->findUserInDatabase($this->getUserTable()->getPDO(), $userId))) {
+		if (is_null($this->userTable->findUserInDatabase($userId))) {
 			$this->redirectWithError("Такого пользователя не существует!");
 		}
 
 		try {
-			$this->getUserTable()->deleteUserFromDatabase($this->getUserTable()->getPDO(), $userId);
+			// Удалять аватар пользователя
+			$this->userTable->deleteUserFromDatabase($userId);
 			header("Location: " . "?action=registration_page", true, 303);
 			die();
 		} catch (\PDOException) {
@@ -189,10 +191,5 @@ class UserController
 		$redirectUrl = "?action=error&msg=" . $message;
 		header("Location: " . $redirectUrl, true, 303);
 		die();
-	}
-
-	private function getUserTable(): UserTable
-	{
-		return $this->userTable;
 	}
 }
