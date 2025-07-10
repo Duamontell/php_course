@@ -1,0 +1,20 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Error{% endblock %}
+
+{% block body %}
+
+<body>
+	<div>
+		<h1>Ошибка!</h1>
+		<p>
+			{% if message is empty %}
+		<p>"404: Запрашиваемая страница не найдена!"</p>
+		{% else %}
+		{{ message }}
+		{% endif %}
+		</p>
+		<a href="registration">Вернуться назад</a>
+	</div>
+</body>
+{% endblock %}

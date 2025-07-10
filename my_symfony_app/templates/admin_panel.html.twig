@@ -24,26 +24,22 @@
 
 <body>
 	<h1>Список пользователей</h1>
-	<?php if (empty($users)) : ?> /
-	<p>Пользователи не найдены</p>
-	<?php else : ?>
+	{% if users is not empty %}
 	<p>Формат отображения: ФИО</p>
-	<?php foreach ($users as $user) : ?>
-	<form action="?action=delete_user&user_id=<?= $user->getUserId() ?>" method="POST">
+	{% for user in users %}
+	<form action="user/{{user.userId}}/delete" method="POST">
 		<div>
-			<a href="?action=profile&user_id=<?= $user->getUserId() ?>">
+			<a href="user/{{user.userId}}">
 				<p>
-					<?= htmlspecialchars(
-								$user->getLastName() . " " .
-								$user->getFirstName() . " " .
-								($user->getMiddleName() ?? "")
-							) ?>
+					{{ user.lastName ~ ' ' ~ user.firstName ~ ' ' ~ (user.middleName|default('')) }}
 				</p>
 			</a>
 			<button type="submit"> Удалить</button>
 		</div>
 	</form>
-	<?php endforeach ?>
-	<?php endif ?>
+	{% endfor %}
+	{% else %}
+	<p>Пользователи не найдены</p>
+	{% endif %}
 </body>
 {% endblock %}

@@ -27,6 +27,16 @@ class ImageService
 		return $newAvatarName;
 	}
 
+	public function deleteImage(string $filePath): bool
+	{
+		$destination = "uploads/" . $filePath;
+		if (!file_exists($destination)) {
+			throw new \RuntimeException("Удаляемый файл не найден!");
+		}
+		
+		return unlink($destination);
+	}
+
 	private function checkFileExtensions(string $ext): bool
 	{
 		return in_array($ext, $this->allowedExtensions);

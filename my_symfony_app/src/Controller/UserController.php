@@ -2,13 +2,14 @@
 
 namespace App\Controller;
 
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use App\Infrastructure\DatabaseConnection;
 use App\Model\UserTable;
 use App\Model\Entity\User;
 use App\Service\ImageService;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
+use RuntimeException;
 
 class UserController extends AbstractController
 {
@@ -53,11 +54,11 @@ class UserController extends AbstractController
 			$user = User::createUserFromParams(null, $params);
 			$id = $this->userTable->saveUserToDatabase($user);
 
-			return $this->redirectToRoute('show_user', ['user_id' => $id], Response::HTTP_SEE_OTHER);
+			return $this->redirectToRoute('show_user', ['userId' => $id], Response::HTTP_SEE_OTHER);
 		} catch (\PDOException) {
-			$this->addFlash('error', 'Пользователь с таким email или номером телефона уже существует');
+			return $this->redirectToRoute('error_page', ['message' => 'Пользователь с таким email или номером телефона уже существует'], Response::HTTP_SEE_OTHER);
 		} catch (\RuntimeException $e) {
-			$this->addFlash('error', $e->getMessage());
+			return $this->redirectToRoute('error_page', ['message' => $e->getMessage()], Response::HTTP_SEE_OTHER);
 		}
 
 		return $this->redirectToRoute('registration_page');
@@ -66,10 +67,9 @@ class UserController extends AbstractController
 	public function showUser(int $userId): Response
 	{
 		if (is_null($user = $this->userTable->findUserInDatabase($userId))) {
-			$this->redirectWithError("Такого пользователя не существует!");
+			return $this->redirectToRoute('error_page', ['message' => "Такого пользователя не существует!"], Response::HTTP_SEE_OTHER);
 		}
 
-		$editUserAction = strval($userId) . "/" . "edit";
 		$birthDate = new \DateTime($user->getBirthDate());
 		return $this->render('show_user.html.twig', [
 			'userId'    => $userId,
@@ -83,28 +83,29 @@ class UserController extends AbstractController
 		try {
 			$params = $request->request->all();
 			if (!$this->checkRequiredFields($params)) {
-				throw new \RuntimeException('Обязательные поля не заполнены или превышают лимит!');
+				throw new \RuntimeException('Обязательные поля не заполнены или превышают лимит символов!');
 			}
-			$user = $this->userTable->findUserInDatabase($userId);
-			if (!$user) {
-				return $this->redirectToRoute('show_user', ['userId' => $userId]);
+			if (!$user = $this->userTable->findUserInDatabase($userId)) {
+				return $this->redirectToRoute('error_page', ['message' => "Такого пользователя не существует!"], Response::HTTP_SEE_OTHER);
 			}
 
 			$avatarFile = $request->files->get('avatar');
 			if ($avatarFile && $avatarFile->isValid()) {
+
 				$params['avatar_path'] = $this->imageService->saveImage($avatarFile);
 			} else {
 				$params['avatar_path'] = $user->getAvatarPath();
 			}
 
+			if (!$this->imageService->deleteImage($user->getAvatarPath())) {
+				throw new RuntimeException("Ошибка удаления аватара!");
+			}
 			$updatedUser = User::createUserFromParams($userId, $params);
 			$this->userTable->updateUserInDatabase($updatedUser);
-
-			return $this->redirectToRoute('show_user', ['userId' => $userId], Response::HTTP_SEE_OTHER);
 		} catch (\PDOException) {
-			$this->addFlash('error', 'Пользователь с таким email или телефоном уже существует');
+			return $this->redirectToRoute('error_page', ['message' => 'Пользователь с таким email или номером телефона уже существует'], Response::HTTP_SEE_OTHER);
 		} catch (\RuntimeException $e) {
-			$this->addFlash('error', $e->getMessage());
+			return $this->redirectToRoute('error_page', ['message' => $e->getMessage()], Response::HTTP_SEE_OTHER);
 		}
 
 		return $this->redirectToRoute('show_user', ['userId' => $userId]);
@@ -118,15 +119,18 @@ class UserController extends AbstractController
 
 	public function deleteUser(int $userId): Response
 	{
-		$user = $this->userTable->findUserInDatabase($userId);
-		if (!$user) {
-			$this->addFlash('error', 'Пользователь не найден');
+		if (!$user = $this->userTable->findUserInDatabase($userId)) {
+			return $this->redirectToRoute('error_page', ['message' => 'Пользователь не найден'], Response::HTTP_SEE_OTHER);
 		} else {
 			try {
 				$this->userTable->deleteUserFromDatabase($userId);
-				$this->addFlash('success', 'Пользователь удалён');
-			} catch (\Exception) {
-				$this->addFlash('error', 'Ошибка при удалении пользователя');
+				if (!$this->imageService->deleteImage($user->getAvatarPath())) {
+					throw new RuntimeException("Ошибка удаления аватара!");
+				}
+			} catch (\PDOException) {
+				return $this->redirectToRoute('error_page', ['message' => "Ошибка при удалении пользователя"], Response::HTTP_SEE_OTHER);
+			} catch (\RuntimeException $e) {
+				return $this->redirectToRoute('error_page', ['message' => $e->getMessage()], Response::HTTP_SEE_OTHER);
 			}
 		}
 		return $this->redirectToRoute('registration_page', [], Response::HTTP_SEE_OTHER);
@@ -147,5 +151,11 @@ class UserController extends AbstractController
 			&& !empty($ar['gender'])
 			&& !empty($ar['birth_date'])
 			&& !empty($ar['email']) && mb_strlen($ar['email']) <= 75;
+	}
+
+	public function showError(Request $request): Response
+	{
+		$message = $request->query->get('message');
+		return $this->render('error.html.twig', ['message' => $message]);
 	}
 }

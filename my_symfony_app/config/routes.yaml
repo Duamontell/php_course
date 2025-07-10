@@ -32,5 +32,5 @@ delete_user:
 
 error_page:
   path: /error
-  controller: App/Controller/UserController::showError
+  controller: App\Controller\UserController::showError
   methods: GET
