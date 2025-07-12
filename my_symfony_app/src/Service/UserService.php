@@ -90,6 +90,31 @@ class UserService
         }
     }
 
+    public function getUser(int $userId): ?User
+    {
+        $user = $this->userRepository->findById($userId);
+        if ($user !== null) {
+            return new User(
+                $user->getUserId(),
+                $user->getFirstName(),
+                $user->getLastName(),
+                $user->getMiddleName(),
+                $user->getGender(),
+                $user->getBirthDate(),
+                $user->getEmail(),
+                $user->getPhone(),
+                $user->getAvatarPath()
+            );
+        } else {
+            return null;
+        }
+    }
+
+    public function getAllUsers(): ?array
+    {
+        return $this->userRepository->findAll();
+    }
+
     private function checkRequiredFields(array $ar): bool
     {
         if (empty($ar['middle_name'])) {

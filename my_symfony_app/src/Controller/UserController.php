@@ -5,9 +5,6 @@ namespace App\Controller;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use App\Repository\UserRepository;
-use App\Entity\User;
-use App\Service\ImageService;
 use App\Service\UserService;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 
@@ -15,8 +12,6 @@ class UserController extends AbstractController
 {
     public function __construct(
         private UserService $userService,
-        private UserRepository $userRepository,
-        private ImageService $imageService
     ) {}
 
     public function showRegistrationForm(): Response
@@ -44,7 +39,7 @@ class UserController extends AbstractController
 
     public function showUser(int $userId): Response
     {
-        if (is_null($user = $this->userRepository->findById($userId))) {
+        if (is_null($user = $this->userService->getUser($userId))) {
             return $this->redirectToRoute('error_page', ['message' => "Такого пользователя не существует!"], Response::HTTP_SEE_OTHER);
         }
 
@@ -73,14 +68,14 @@ class UserController extends AbstractController
 
     public function showAdminPanel(): Response
     {
-        $users = $this->userRepository->findAll();
+        $users = $this->userService->getAllUsers();
         return $this->render('admin_panel.html.twig', ['users' => $users]);
     }
 
     public function deleteUser(int $userId): Response
     {
         try {
-            $this->userRepository->delete($userId);
+            $this->userService->deleteUser($userId);
         } catch (\RuntimeException $e) {
             return $this->redirectToRoute('error_page', ['message' => $e->getMessage()], Response::HTTP_SEE_OTHER);
         }
