@@ -6,113 +6,79 @@ namespace App\Entity;
 
 class User
 {
-	public function __construct(
-		private ?int $userId,
-		private string $firstName,
-		private string $lastName,
-		private ?string $middleName,
-		private string $gender,
-		private string $birthDate,
-		private string $email,
-		private ?string $phone,
-		private ?string $avatarPath
-	) {}
+    public function __construct(
+        private ?int $userId,
+        private string $firstName,
+        private string $lastName,
+        private ?string $middleName,
+        private string $gender,
+        private \DateTime $birthDate,
+        private string $email,
+        private ?string $phone,
+        private ?string $avatarPath
+    ) {}
 
-	public static function createUserfromParams(?int $userId, array $params): User
-	{
-		$middleName = $params["middle_name"] != null ? $params["middle_name"] : null;
-		$phone = $params["phone"] != null ? $params["phone"] : null;
+    public static function createUserfromParams(?int $userId, array $params): User
+    {
+        $middleName = $params["middle_name"] != null ? $params["middle_name"] : null;
+        $birthDate = new \DateTime($params["birth_date"]);
+        $phone = $params["phone"] != null ? $params["phone"] : null;
 
-		return new User(
-			$userId,
-			$params["first_name"],
-			$params["last_name"],
-			$middleName,
-			$params["gender"],
-			$params["birth_date"],
-			$params["email"],
-			$phone,
-			$params["avatar_path"]
-		);
-	}
+        return new User(
+            $userId,
+            $params["first_name"],
+            $params["last_name"],
+            $middleName,
+            $params["gender"],
+            $birthDate,
+            $params["email"],
+            $phone,
+            $params["avatar_path"]
+        );
+    }
 
-	public function setFirstName(string $str)
-	{
-		$this->firstName = $str;
-	}
+    public function getUserId(): ?int
+    {
+        return $this->userId;
+    }
 
-	public function setLastName(string $str)
-	{
-		$this->lastName = $str;
-	}
+    public function getFirstName(): string
+    {
+        return $this->firstName;
+    }
 
-	public function setMiddletName(string $str)
-	{
-		$this->middleName = $str;
-	}
+    public function getLastName(): string
+    {
+        return $this->lastName;
+    }
 
-	public function setGander(string $str)
-	{
-		$this->gender = $str;
-	}
+    public function getMiddleName(): ?string
+    {
+        return $this->middleName;
+    }
 
-	public function setBirthDate(string $str)
-	{
-		$this->birthDate = $str;
-	}
+    public function getGender(): string
+    {
+        return $this->gender;
+    }
 
-	public function setEmail(string $str)
-	{
-		$this->email = $str;
-	}
+    public function getBirthDate(): \DateTime
+    {
+        return $this->birthDate;
+    }
 
-	public function setPhone(string $str)
-	{
-		$this->phone = $str;
-	}
+    public function getEmail(): string
+    {
+        return $this->email;
+    }
 
-	public function getUserId(): ?int
-	{
-		return $this->userId;
-	}
+    public function getPhone(): ?string
+    {
+        return $this->phone;
+    }
 
-	public function getFirstName(): string
-	{
-		return $this->firstName;
-	}
-
-	public function getLastName(): string
-	{
-		return $this->lastName;
-	}
-
-	public function getMiddleName(): ?string
-	{
-		return $this->middleName;
-	}
-
-	public function getGender(): string
-	{
-		return $this->gender;
-	}
-
-	public function getBirthDate(): string
-	{
-		return $this->birthDate;
-	}
-
-	public function getEmail(): string
-	{
-		return $this->email;
-	}
-
-	public function getPhone(): ?string
-	{
-		return $this->phone;
-	}
-
-	public function getAvatarPath(): ?string
-	{
-		return $this->avatarPath;
-	}
+    public function getAvatarPath(): ?string
+    {
+        return $this->avatarPath;
+    }
 }
