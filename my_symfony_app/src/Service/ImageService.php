@@ -22,7 +22,7 @@ class ImageService
 		}
 
 		$newAvatarName = $this->generateAvatarFilename($avatarExtension);
-		$this->moveUserAvatar($file["tmp_name"], $newAvatarName);
+		$this->moveUserImage($file["tmp_name"], $newAvatarName);
 
 		return $newAvatarName;
 	}
@@ -48,10 +48,9 @@ class ImageService
 		return "avatar{$randomUuid}" . "." . $extension;
 	}
 
-	private function moveUserAvatar(string $path, string $filename)
+	private function moveUserImage(string $path, string $filename)
 	{
 		$uploadDir = "uploads/" . $filename;
-		echo ($path);
 		if (!move_uploaded_file($path, $uploadDir)) {
 			throw new \RuntimeException("Ошибка сохранении аватара!");
 		}
