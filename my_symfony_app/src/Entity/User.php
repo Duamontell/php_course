@@ -37,6 +37,46 @@ class User
         );
     }
 
+    public function setFirstName(string $str)
+    {
+        $this->firstName = $str;
+    }
+
+    public function setLastName(string $str)
+    {
+        $this->lastName = $str;
+    }
+
+    public function setMiddleName(string $str)
+    {
+        $this->middleName = $str;
+    }
+
+    public function setGender(string $str)
+    {
+        $this->gender = $str;
+    }
+
+    public function setBirthDate(\DateTime $str)
+    {
+        $this->birthDate = $str;
+    }
+
+    public function setEmail(string $str)
+    {
+        $this->email = $str;
+    }
+
+    public function setPhone(string $str)
+    {
+        $this->phone = $str;
+    }
+
+    public function setAvatarPath(string $str)
+    {
+        $this->avatarPath = $str;
+    }
+
     public function getUserId(): ?int
     {
         return $this->userId;

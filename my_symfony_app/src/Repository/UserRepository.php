@@ -24,6 +24,11 @@ class UserRepository
         return $user->getUserId();
     }
 
+    public function update(User $user): void
+    {
+        $this->entityManager->flush($user);
+    }
+
     public function findById(int $id): ?User
     {
         return $this->entityManager->getRepository(User::class)->find($id);

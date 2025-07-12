@@ -5,24 +5,19 @@ namespace App\Controller;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use App\Infrastructure\DatabaseConnection;
 use App\Repository\UserRepository;
 use App\Entity\User;
 use App\Service\ImageService;
+use App\Service\UserService;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 
 class UserController extends AbstractController
 {
-    private UserRepository $userRepository;
-    private ImageService $imageService;
-
     public function __construct(
-        UserRepository $userRepository,
-        ImageService $imageService
-    ) {
-        $this->userRepository = $userRepository;
-        $this->imageService = $imageService;
-    }
+        private UserService $userService,
+        private UserRepository $userRepository,
+        private ImageService $imageService
+    ) {}
 
     public function showRegistrationForm(): Response
     {
@@ -31,28 +26,11 @@ class UserController extends AbstractController
 
     public function registrationUser(Request $request): Response
     {
-        $params = $request->request->all();
+        $userInfo = $request->request->all();
+        $avatarFile = $request->files->get('avatar');
+
         try {
-            if (!$this->checkRequiredFields($params)) {
-                throw new \RuntimeException('Обязательные поля должны быть заполнены!');
-            }
-
-            $avatarFile = $request->files->get('avatar');
-            if ($avatarFile) {
-                $fileArray = [
-                    'tmp_name' => $avatarFile->getPathname(),
-                    'name'     => $avatarFile->getClientOriginalName(),
-                    'type'     => $avatarFile->getClientMimeType(),
-                    'error'    => $avatarFile->getError(),
-                    'size'     => $avatarFile->getSize(),
-                ];
-                $params['avatar_path'] = $this->imageService->saveImage($fileArray);
-            } else {
-                $params['avatar_path'] = null;
-            }
-
-            $user = User::createUserFromParams(null, $params);
-            $id = $this->userRepository->store($user);
+            $id = $this->userService->registerUser($userInfo, $avatarFile);
 
             return $this->redirectToRoute('show_user', ['userId' => $id], Response::HTTP_SEE_OTHER);
         } catch (UniqueConstraintViolationException) {
@@ -81,35 +59,9 @@ class UserController extends AbstractController
     public function updateUserInfo(int $userId, Request $request): Response
     {
         try {
-            $params = $request->request->all();
-            if (!$this->checkRequiredFields($params)) {
-                throw new \RuntimeException('Обязательные поля не заполнены или превышают лимит символов!');
-            }
-            if (!$user = $this->userRepository->findById($userId)) {
-                return $this->redirectToRoute('error_page', ['message' => "Такого пользователя не существует!"], Response::HTTP_SEE_OTHER);
-            }
-
+            $newUserInfo = $request->request->all();
             $avatarFile = $request->files->get('avatar');
-            if ($avatarFile) {
-                if ($user->getAvatarPath() != null) {
-                    if (!$this->imageService->deleteImage($user->getAvatarPath())) {
-                        throw new \RuntimeException("Ошибка удаления аватара!");
-                    }
-                }
-                $fileArray = [
-                    'tmp_name' => $avatarFile->getPathname(),
-                    'name'     => $avatarFile->getClientOriginalName(),
-                    'type'     => $avatarFile->getClientMimeType(),
-                    'error'    => $avatarFile->getError(),
-                    'size'     => $avatarFile->getSize(),
-                ];
-                $params['avatar_path'] = $this->imageService->saveImage($fileArray);
-            } else {
-                $params['avatar_path'] = $user->getAvatarPath();
-            }
-
-            $updatedUser = User::createUserFromParams($userId, $params);
-            $this->userRepository->store($updatedUser);
+            $this->userService->updateUserInfo($userId, $newUserInfo, $avatarFile);
         } catch (UniqueConstraintViolationException $e) {
             return $this->redirectToRoute('error_page', ['message' => 'Пользователь с таким email или номером телефона уже существует'], Response::HTTP_SEE_OTHER);
         } catch (\RuntimeException $e) {
@@ -127,36 +79,13 @@ class UserController extends AbstractController
 
     public function deleteUser(int $userId): Response
     {
-        if (!$user = $this->userRepository->findById($userId)) {
-            return $this->redirectToRoute('error_page', ['message' => 'Пользователь не найден'], Response::HTTP_SEE_OTHER);
-        } else {
-            try {
-                $this->userRepository->delete($userId);
-                if (!$this->imageService->deleteImage($user->getAvatarPath())) {
-                    throw new \RuntimeException("Ошибка удаления аватара!");
-                }
-            } catch (\RuntimeException $e) {
-                return $this->redirectToRoute('error_page', ['message' => $e->getMessage()], Response::HTTP_SEE_OTHER);
-            }
+        try {
+            $this->userRepository->delete($userId);
+        } catch (\RuntimeException $e) {
+            return $this->redirectToRoute('error_page', ['message' => $e->getMessage()], Response::HTTP_SEE_OTHER);
         }
+
         return $this->redirectToRoute('registration_page', [], Response::HTTP_SEE_OTHER);
-    }
-
-    private function checkRequiredFields(array $ar): bool
-    {
-        if (empty($ar['middle_name'])) {
-            $ar['middle_name'] = null;
-        }
-        if (empty($ar['phone'])) {
-            $ar['phone'] = null;
-        }
-
-        return !empty($ar['first_name']) && mb_strlen($ar['first_name']) <= 50
-            && !empty($ar['last_name']) && mb_strlen($ar['last_name']) <= 50
-            && mb_strlen((string) $ar['middle_name']) <= 50
-            && !empty($ar['gender'])
-            && !empty($ar['birth_date'])
-            && !empty($ar['email']) && mb_strlen($ar['email']) <= 75;
     }
 
     public function showError(Request $request): Response
