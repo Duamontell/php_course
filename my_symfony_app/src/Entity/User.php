@@ -15,7 +15,9 @@ class User
         private \DateTime $birthDate,
         private string $email,
         private ?string $phone,
-        private ?string $avatarPath
+        private ?string $avatarPath,
+        private string $password,
+        private int $role
     ) {}
 
     public static function createUserfromParams(?int $userId, array $params): User
@@ -33,7 +35,9 @@ class User
             $birthDate,
             $params["email"],
             $phone,
-            $params["avatar_path"]
+            $params["avatar_path"],
+            "",
+            1
         );
     }
 
@@ -73,6 +77,16 @@ class User
     }
 
     public function setAvatarPath(string $str)
+    {
+        $this->avatarPath = $str;
+    }
+
+    public function setPassword(string $str)
+    {
+        $this->password = $str;
+    }
+
+    public function set(string $str)
     {
         $this->avatarPath = $str;
     }
@@ -120,5 +134,15 @@ class User
     public function getAvatarPath(): ?string
     {
         return $this->avatarPath;
+    }
+
+    public function getPassword(): string
+    {
+        return $this->password;
+    }
+
+    public function getRole(): int
+    {
+        return $this->role;
     }
 }
