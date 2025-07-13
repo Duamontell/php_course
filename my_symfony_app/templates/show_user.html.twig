@@ -5,7 +5,7 @@
 {% block stylesheets %}
 {{ parent() }}
 <style>
-	div {
+	.userInfoRow {
 		margin-top: 10px;
 	}
 </style>
@@ -15,7 +15,7 @@
 <h1>Профиль пользователя</h1>
 
 <form action="{{userId}}/edit" enctype="multipart/form-data" method="POST">
-	<div>
+	<div class="userInfoRow">
 		<label for="first_name-input">Имя: </label>
 		<input
 			type="text"
@@ -26,7 +26,7 @@
 			required>
 	</div>
 
-	<div>
+	<div class="userInfoRow">
 		<label for="last_name-input">Фамилия:</label>
 		<input
 			type="text"
@@ -37,7 +37,7 @@
 			required>
 	</div>
 
-	<div>
+	<div class="userInfoRow">
 		<label for="middle_name-input">Отчество:</label>
 		<input
 			type="text"
@@ -47,7 +47,7 @@
 			maxlength="50">
 	</div>
 
-	<div>
+	<div class="userInfoRow">
 		<label for="gender-select">Пол: </label>
 		<select name="gender" id="gender-select">
 			{% for key, label in {'man': 'Мужской', 'woman': 'Женский'} %}
@@ -58,7 +58,7 @@
 		</select>
 	</div>
 
-	<div>
+	<div class="userInfoRow">
 		<label for="birth_date-input">Дата рождения</label>
 		<input
 			type="date"
@@ -68,7 +68,7 @@
 			required>
 	</div>
 
-	<div>
+	<div class="userInfoRow">
 		<label for="email-input">Email</label>
 		<input
 			type="email"
@@ -79,7 +79,7 @@
 			required>
 	</div>
 
-	<div>
+	<div class="userInfoRow">
 		<label for="phone-input">Телефон</label>
 		<input
 			type="tel"
@@ -89,7 +89,7 @@
 			maxlength="20">
 	</div>
 
-	<div>
+	<div class="userInfoRow">
 		<label for="avatar-input">Аватар</label>
 		<input
 			type="file"

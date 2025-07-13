@@ -8,6 +8,13 @@ h1 {
 	text-align: center;
 }
 
+.linkToLogin {
+    display: block;
+    text-align: center;
+    text-decoration: none;
+    color: black;
+}
+
 form {
 	width: 270px;
 	display: flex;

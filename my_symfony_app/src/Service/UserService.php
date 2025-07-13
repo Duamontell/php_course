@@ -6,6 +6,7 @@ namespace App\Service;
 
 use App\Repository\UserRepository;
 use App\Service\ImageService;
+use App\Service\PasswordHasher;
 use App\Entity\User;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
@@ -14,6 +15,7 @@ class UserService
     public function __construct(
         private UserRepository $userRepository,
         private ImageService   $imageService,
+        private PasswordHasher $passwordHasher
     ) {}
 
     public function registerUser(array $userInfo, ?UploadedFile $avatarFile): int
@@ -34,6 +36,8 @@ class UserService
         } else {
             $userInfo['avatar_path'] = null;
         }
+
+        $userInfo['password'] = $this->passwordHasher->hash($userInfo['password']);
 
         $user = User::createUserFromParams(null, $userInfo);
         return $this->userRepository->store($user);
