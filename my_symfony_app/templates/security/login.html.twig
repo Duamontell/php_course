@@ -1,0 +1,25 @@
+{% extends 'unauthorized.html.twig' %}
+
+{% block title %}Вход в аккаунт{% endblock %}
+
+{% block body %}
+    <form method="POST" action="{{ path('login') }}">
+        {% if error %}
+            <div class="alert alert-danger">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
+        {% endif %}
+
+        <h1>Вход в аккаунт</h1>
+        <div>
+            <label for="input-email" class="form-label">Email:</label>
+            <input type="email" value="{{ last_username }}" name="email" id="input-email" autocomplete="email" required autofocus>
+        </div>
+        <div>
+            <label for="input-password">Пароль:</label>
+            <input type="password" name="password" id="input-password" autocomplete="current-password" required>
+        </div>
+
+        <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+        <button type="submit">Войти</button>
+        <button type="button"><a href="{{ path('signup') }}">Зарегистрироваться</a></button>
+    </form>
+{% endblock %}

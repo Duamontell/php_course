@@ -104,8 +104,10 @@ class UserService
                 $user->getEmail(),
                 $user->getPhone(),
                 $user->getAvatarPath(),
-                $user->getPassword(),
-                $user->getRole()
+                // $user->getPassword(),
+                "1",
+                // $user->getRole()
+                0
             );
         } else {
             return null;

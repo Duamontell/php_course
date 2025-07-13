@@ -2,6 +2,14 @@ home:
   path: /
   controller: App\Controller\UserController::showRegistrationForm
 
+signup:
+  path: /signup
+  controller: App\Controller\UserController::register
+
+login:
+  path: /signin
+  controller: App\Controller\SecurityController::login
+
 registration_page:
   path: /registration
   controller: App\Controller\UserController::showRegistrationForm
