@@ -2,7 +2,7 @@
 {% block title %}Профиль пользователя{% endblock %}
 
 {% block stylesheets %}
-<link href="css/register_user.css" type="text/css" rel="stylesheet" />
+    <link href="css/register_user.css" type="text/css" rel="stylesheet" />
 {% endblock %}
 
 
@@ -10,6 +10,7 @@
 
 <body>
 	<h1>Регистрация пользователя:</h1>
+    <a href="signin" class="linkToLogin">Уже есть аккаунт? Войдите.</a>
 	<form action="{{action}}" enctype="multipart/form-data" method="POST">
 		<div class="form-row">
 			<label for="first_name-input">Имя:</label>
@@ -44,6 +45,16 @@
 		<div class="form-row">
 			<label for="avatar-input">Аватар</label>
 			<input type="file" id="avatar-input" accept=".png, .jpeg, .gif" name="avatar">
+		</div>
+        <div class="form-row">
+			<label for="password-input">Пароль</label>
+			<input type="password" id="password-input" name="password" required>
+		</div>
+        <div class="form-row">
+			<label for="user-role-input">User</label>
+			<input type="radio" id="user-role-input" name="role" value="0" checked>
+			<label for="admin-role-input">Admin</label>
+			<input type="radio" id="admin-role-input" name="role" value="1">
 		</div>
 		<button type="submit">Зарегистрироваться</button>
 	</form>

@@ -36,8 +36,8 @@ class User
             $params["email"],
             $phone,
             $params["avatar_path"],
-            "",
-            1
+            $params["password"],
+            (int)$params["role"]
         );
     }
 
