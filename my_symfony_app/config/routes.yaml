@@ -6,7 +6,7 @@ signup:
   path: /signup
   controller: App\Controller\UserController::register
 
-login:
+app_login:
   path: /signin
   controller: App\Controller\SecurityController::login
 
@@ -42,3 +42,7 @@ error_page:
   path: /error
   controller: App\Controller\UserController::showError
   methods: GET
+
+app_logout:
+  path: /logout
+  controller: App\Controller\SecurityController::logout

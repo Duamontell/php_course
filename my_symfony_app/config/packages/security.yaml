@@ -4,6 +4,12 @@ security:
         Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface: 'auto'
     # https://symfony.com/doc/current/security.html#loading-the-user-the-user-provider
     providers:
+        custom_provider:
+            id: App\Security\UserProvider
+        app_user_provider:
+            entity:
+                class: App\Security\SecurityUser
+                property: email
         users_in_memory: { memory: null }
     firewalls:
         dev:
@@ -11,7 +17,7 @@ security:
             security: false
         main:
             lazy: true
-            provider: users_in_memory
+            provider: custom_provider
             form_login:
                 login_path: app_login
                 check_path: app_login
@@ -32,6 +38,11 @@ security:
     access_control:
         # - { path: ^/admin, roles: ROLE_ADMIN }
         # - { path: ^/profile, roles: ROLE_USER }
+        - { path: ^/signin, roles: PUBLIC_ACCESS }
+        - { path: ^/registration, roles: PUBLIC_ACCESS }
+        - { path: ^/register, roles: PUBLIC_ACCESS }
+        - { path: ^/admin, roles: ROLE_ADMIN }
+        - { path: ^/,      roles: ROLE_USER }
         
 
 when@test:
