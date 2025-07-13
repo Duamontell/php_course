@@ -6,14 +6,14 @@
 {{ parent() }}
 <meta charset="UTF-8">
 <style>
-	div {
+	.userRow {
 		border: 4px solid;
 		display: flex;
 		margin-bottom: 3px;
 		justify-content: space-between;
 	}
 
-	a {
+	.userLink {
 		text-decoration: none;
 		color: black;
 	}
@@ -28,8 +28,8 @@
 	<p>Формат отображения: ФИО</p>
 	{% for user in users %}
 	<form action="user/{{user.userId}}/delete" method="POST">
-		<div>
-			<a href="user/{{user.userId}}">
+		<div class="userRow">
+			<a href="user/{{user.userId}}" class="userLink">
 				<p>
 					{{ user.lastName ~ ' ' ~ user.firstName ~ ' ' ~ (user.middleName|default('')) }}
 				</p>
