@@ -103,7 +103,9 @@ class UserService
                 $user->getBirthDate(),
                 $user->getEmail(),
                 $user->getPhone(),
-                $user->getAvatarPath()
+                $user->getAvatarPath(),
+                $user->getPassword(),
+                $user->getRole()
             );
         } else {
             return null;
