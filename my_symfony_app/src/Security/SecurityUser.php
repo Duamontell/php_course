@@ -46,7 +46,7 @@ class SecurityUser implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->email;
     }
 
-    public function eraseCredentials() :void {}
+    public function eraseCredentials(): void {}
 
     public function getSalt()
     {

@@ -76,10 +76,14 @@ class UserProvider implements UserProviderInterface
     /**
      * Tells Symfony to use this provider for this User class.
      */
+    // public function supportsClass(string $class): bool
+    // {
+    //     return $class instanceof SecurityUser;
+    //     // return SecurityUser::class === $class || is_subclass_of($class, SecurityUser::class);
+    // }
     public function supportsClass(string $class): bool
     {
-        return $class instanceof SecurityUser;
-        // return SecurityUser::class === $class || is_subclass_of($class, SecurityUser::class);
+        return $class === SecurityUser::class || is_subclass_of($class, SecurityUser::class);
     }
 
     /**
