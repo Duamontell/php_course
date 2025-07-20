@@ -29,13 +29,6 @@ class UserProvider implements UserProviderInterface
     }
 
     /**
-     * Метод loadUserByIdentifier() был представлен в Symfony 5.3.
-     * В предыдущих версиях он назывался loadUserByUsername()
-     *
-     * Symfony вызывает этот метод, если вы используете функции вроде switch_user
-     * или remember_me. Если вы не используете эти функции, вам не нужно реализовывать
-     * этот метод.
-     *
      * @throws UserNotFoundException, если пользователь не найден
      */
     public function loadUserByIdentifier(string $identifier): UserInterface
@@ -48,16 +41,6 @@ class UserProvider implements UserProviderInterface
     }
 
     /**
-     * Обновляет пользователя после повторной загрузки из сессии.
-     *
-     * Когда пользователь вошел в систему, в начале каждого запроса, объект
-     * User загружается из сессии, а затем вызывается этот метод. Ваша задача
-     * - убедиться, что данные пользователя все еще свежие, путем, к примеру,
-     * повторного запроса свежих данных пользователя.
-     *
-     * Если ваш файерволл "stateless: true" (для чистого API), этот метод
-     * не вызывается.
-     *
      * @return UserInterface
      */
     public function refreshUser(UserInterface $user): UserInterface
@@ -76,23 +59,8 @@ class UserProvider implements UserProviderInterface
     /**
      * Tells Symfony to use this provider for this User class.
      */
-    // public function supportsClass(string $class): bool
-    // {
-    //     return $class instanceof SecurityUser;
-    //     // return SecurityUser::class === $class || is_subclass_of($class, SecurityUser::class);
-    // }
     public function supportsClass(string $class): bool
     {
         return $class === SecurityUser::class || is_subclass_of($class, SecurityUser::class);
-    }
-
-    /**
-     * Обновляет зашифрованный пароль пользователя, обычно для использования лучшего алгоритма хеширования.
-     */
-    public function upgradePassword(UserInterface $user, string $newEncodedPassword): void
-    {
-        // СДЕЛАТЬ: когда используются хешированные пароли, этот метод должен:
-        // 1. сохранять новый пароль в хранилище пользователя
-        // 2. обновлять объект $user с $user->setPassword($newHashedPassword);
     }
 }
